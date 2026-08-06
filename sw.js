@@ -1,9 +1,9 @@
-const CACHE = 'shirogane-pwa-v1.8.2';
+const CACHE = 'shirogane-pwa-v1.8.3';
 const APP_SHELL = [
-  './', './index.html', './styles.css?v=1.8.2', './app.js?v=1.8.2',
-  './cloud-config.js?v=1.8.2', './cloud-sync.js?v=1.8.2',
-  './receipt-public.js?v=1.8.2', './receipt-tools.js?v=1.8.2',
-  './public-version.json', './receipt.html', './print-preview.html?v=1.8.2', './manifest.webmanifest', './app-icon.png'
+  './', './index.html', './styles.css?v=1.8.3', './app.js?v=1.8.3',
+  './cloud-config.js?v=1.8.3', './cloud-sync.js?v=1.8.3',
+  './receipt-public.js?v=1.8.3', './receipt-tools.js?v=1.8.3',
+  './public-version.json', './receipt.html', './mobile-print.html', './manifest.webmanifest', './app-icon.png'
 ];
 
 self.addEventListener('install', event => {
