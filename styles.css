@@ -659,3 +659,39 @@ table{max-width:100%}
   .card .value { font-size:23px!important; }
   .sizes { grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:6px!important; }
 }
+
+
+/* SHIROGANE v2.3.0 — Mobile order cards */
+.mobile-order-list{display:none}
+@media (max-width:820px){
+  .desktop-orders{display:none!important}
+  .mobile-order-list{display:grid;gap:14px;margin-top:14px}
+  .mobile-order-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:17px;box-shadow:0 12px 30px rgba(15,23,42,.08);overflow:hidden}
+  .mobile-order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .mobile-order-kicker{display:block;color:#64748b;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:4px}
+  .mobile-order-invoice{display:block;font-size:17px;line-height:1.25;color:#0f172a;overflow-wrap:anywhere}
+  .mobile-order-customer{font-size:21px;font-weight:900;color:#0f172a;margin:16px 0 14px}
+  .mobile-order-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:#f8fafc;border-radius:16px;padding:12px}
+  .mobile-order-info div{min-width:0}
+  .mobile-order-info span{display:block;color:#64748b;font-size:11px;margin-bottom:4px}
+  .mobile-order-info b{display:block;color:#0f172a;font-size:13px;overflow-wrap:anywhere}
+  .mobile-order-info .balance b{color:#b91c1c}
+  .mobile-order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+  .mobile-order-actions button{border:1px solid #dbe3ee;background:#fff;color:#0f172a;border-radius:13px;min-height:46px;padding:10px 8px;font-weight:850;font-size:14px;touch-action:manipulation}
+  .mobile-order-actions button.open{background:#0f172a;border-color:#0f172a;color:#fff}
+  .mobile-order-actions button.print{background:#e8f0ff;border-color:#bfd2ff;color:#153b82}
+  .mobile-order-actions button.danger{grid-column:1/-1;background:#fff1f2;border-color:#fecdd3;color:#be123c}
+  #page-dashboard .panel>.toolbar{align-items:stretch}
+  #page-dashboard .panel>.toolbar h2{margin-bottom:4px}
+  #page-orders .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  #page-orders .toolbar #orderSearch{grid-column:1/-1;min-width:0!important;width:100%}
+  #page-orders .toolbar .spacer{display:none}
+  #page-orders .toolbar #bulkDeleteBtn{display:none}
+  #page-orders .toolbar .btn.primary{width:100%}
+  .mobile-print-toolbar{padding:10px;gap:7px;flex-wrap:wrap}
+  .mobile-print-toolbar button{min-height:44px;font-size:13px}
+}
+@media (max-width:380px){
+  .mobile-order-info{grid-template-columns:1fr 1fr}
+  .mobile-order-info .balance{grid-column:1/-1}
+}

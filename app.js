@@ -232,29 +232,48 @@ function ensureMobilePrintStyles(){
  }`;
  document.head.appendChild(style);
 }
+let mobilePrintOrderId=null;
 window.closeMobilePrintPreview=()=>{
  const overlay=document.getElementById('mobilePrintOverlay');
  if(overlay)overlay.remove();
+ mobilePrintOrderId=null;
  document.body.classList.remove('mobile-printing');
 };
 window.printMobilePreview=()=>{
  document.body.classList.add('mobile-printing');
  setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
 };
-window.downloadMobilePdf=()=>{
- const note=document.getElementById('mobilePdfHint');
- if(note)note.textContent='Pada dialog berikutnya pilih “Simpan sebagai PDF”.';
- document.body.classList.add('mobile-printing');
- setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('mobile-printing');if(note)note.textContent='';},900)},80);
+window.downloadOrderPdf=async id=>{
+ const order=db.orders.find(x=>x.id===id)||db.trash?.find(x=>x.id===id);
+ if(!order)return toast('Nota tidak ditemukan.');
+ if(typeof window.__SHIROGANE_BUILD_PDF!=='function')return toast('Generator PDF belum siap. Muat ulang aplikasi.');
+ const button=document.querySelector('[data-direct-pdf]');
+ const oldText=button?.textContent;
+ try{
+  if(button){button.disabled=true;button.textContent='Menyiapkan PDF…';}
+  const blob=await window.__SHIROGANE_BUILD_PDF(order);
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`Nota-${String(order.invoice||'SHIROGANE').replace(/[^a-zA-Z0-9_-]/g,'-')}.pdf`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1500);
+  try{logActivity('Download PDF',order.invoice)}catch{}
+  toast('PDF berhasil diunduh.');
+ }catch(err){console.error('Download PDF gagal:',err);toast('PDF gagal dibuat. Coba lagi.');}
+ finally{if(button){button.disabled=false;button.textContent=oldText||'📄 Download PDF';}}
 };
+window.downloadMobilePdf=()=>mobilePrintOrderId&&window.downloadOrderPdf(mobilePrintOrderId);
 function openMobilePrintPreview(o,type){
  ensureMobilePrintStyles();
  closeMobilePrintPreview();
+ mobilePrintOrderId=o.id;
  const isThermal=type==='thermal';
  const overlay=document.createElement('div');
  overlay.id='mobilePrintOverlay';
  overlay.className='mobile-print-overlay';
- overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print'}</button><button class="pdf-button" onclick="downloadMobilePdf()">📄 Download PDF</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button><span id="mobilePdfHint" style="display:none"></span></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
+ const pdfButton=isThermal?'':`<button class="pdf-button" data-direct-pdf onclick="downloadMobilePdf()">📄 Download PDF</button>`;
+ overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print'}</button>${pdfButton}<button onclick="closeMobilePrintPreview()">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
  document.body.appendChild(overlay);
 }
 window.printOrder=(id,type)=>{
@@ -265,28 +284,34 @@ window.printOrder=(id,type)=>{
  if(!w)return toast('Jendela preview diblokir.');
  const isThermal=type==='thermal';
  const invoiceJSON=JSON.stringify(o.invoice||'Nota-SHIROGANE');
+ const orderIdJSON=JSON.stringify(o.id);
  const toolbar=isThermal
   ? `<div class="preview-toolbar no-print"><button onclick="window.print()">🖨 Print Thermal</button><button onclick="window.close()">✕ Tutup</button></div>`
-  : `<div class="preview-toolbar no-print"><button onclick="window.print()">🖨 Print</button><button class="pdf-button" onclick="saveSamePreviewPDF()">📄 Simpan PDF</button><button onclick="window.close()">✕ Tutup</button><span id="pdfStatus"></span></div>`;
+  : `<div class="preview-toolbar no-print"><button onclick="window.print()">🖨 Print</button><button class="pdf-button" onclick="saveSamePreviewPDF()">📄 Download PDF</button><button onclick="window.close()">✕ Tutup</button><span id="pdfStatus"></span></div>`;
  w.document.open();
  w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(o.invoice)}</title><link rel="stylesheet" href="styles.css"><style>
  @page{size:${isThermal?'80mm auto':'A4 portrait'};margin:${isThermal?'3mm':'10mm'}}
  *{box-sizing:border-box}body{margin:0;background:#eef2f7}.preview-toolbar{position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:#111827;box-shadow:0 4px 18px rgba(0,0,0,.2)}.preview-toolbar button{border:0;border-radius:9px;padding:10px 16px;background:#fff;color:#111827;font-weight:800;cursor:pointer}.preview-toolbar .pdf-button{background:#dc2626;color:#fff}.preview-toolbar #pdfStatus{color:#fff;font-size:12px}.print-area{background:#fff;margin:18px auto}.pdf-export .preview-toolbar{display:none!important}@media print{body{background:#fff}.preview-toolbar{display:none!important}.print-area{margin:0 auto!important}}
  </style></head><body>${toolbar}<div class="print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div><script>
  const invoiceName=${invoiceJSON};
+ const orderId=${orderIdJSON};
  async function saveSamePreviewPDF(){
    const status=document.getElementById('pdfStatus');
-   if(!window.electronPrint?.savePdf){
-     if(status)status.textContent='Pilih Simpan sebagai PDF pada dialog cetak';
-     alert('Pada Android, pilih printer “Simpan sebagai PDF” di dialog berikutnya. Isi PDF sama dengan preview nota.');
-     window.print();
+   if(window.electronPrint?.savePdf){
+     if(status)status.textContent='Menyimpan PDF...';
+     const result=await window.electronPrint.savePdf(invoiceName);
+     if(result?.ok){if(status)status.textContent='PDF berhasil disimpan';}
+     else if(!result?.canceled){if(status)status.textContent='Gagal menyimpan PDF';}
+     else if(status)status.textContent='';
      return;
    }
-   if(status)status.textContent='Menyimpan PDF...';
-   const result=await window.electronPrint.savePdf(invoiceName);
-   if(result?.ok){if(status)status.textContent='PDF berhasil disimpan';alert('PDF berhasil disimpan.');}
-   else if(!result?.canceled){if(status)status.textContent='Gagal menyimpan PDF';alert('Gagal menyimpan PDF: '+(result?.message||'Tidak diketahui'));}
-   else if(status)status.textContent='';
+   if(window.opener?.downloadOrderPdf){
+     if(status)status.textContent='Mengunduh PDF...';
+     await window.opener.downloadOrderPdf(orderId);
+     if(status)status.textContent='PDF berhasil diunduh';
+     return;
+   }
+   alert('Generator PDF tidak tersedia. Kembali ke aplikasi lalu coba lagi.');
  }
  window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
  <\/script></body></html>`);
@@ -385,7 +410,11 @@ function nav(page){
 
 function renderAll(){renderDashboard();renderOrders();renderCustomers();renderProducts();renderReports();renderTrash();renderActivity();renderSettings();$('#brandNameSide').textContent=db.settings.business||'SHIROGANE';const mark=$('.brand-mark');if(mark)mark.innerHTML=db.settings.logo?`<img src="${db.settings.logo}" alt="Logo">`:esc((db.settings.business||'S').slice(0,1))}
 
-function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button class="btn small" onclick="editOrder('${o.id}')">Buka</button> <button class="btn small" onclick="duplicateOrder('${o.id}')">Duplikat</button> <button class="btn small" onclick="printOrder('${o.id}','thermal')">Thermal</button> <button class="btn small" onclick="printOrder('${o.id}','f4')">Print</button> <button class="btn small danger" onclick="moveToTrash('${o.id}')">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
+function ordersTable(arr,bulk=false){
+ const table=`<div class="desktop-orders table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button class="btn small" onclick="editOrder('${o.id}')">Buka</button> <button class="btn small" onclick="duplicateOrder('${o.id}')">Duplikat</button> <button class="btn small" onclick="printOrder('${o.id}','thermal')">Thermal</button> <button class="btn small" onclick="printOrder('${o.id}','f4')">Print</button> <button class="btn small danger" onclick="moveToTrash('${o.id}')">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`;
+ const cards=`<div class="mobile-order-list">${arr.map(o=>{const t=orderTotals(o);return `<article class="mobile-order-card"><div class="mobile-order-top"><div><span class="mobile-order-kicker">NO. NOTA</span><strong class="mobile-order-invoice">${esc(o.invoice)}</strong></div><span class="badge ${statusClass(o.productionStatus)}">${esc(o.productionStatus)}</span></div><div class="mobile-order-customer">${esc(o.customer||'Tanpa Nama')}</div><div class="mobile-order-info"><div><span>Tanggal</span><b>${esc(o.date)}</b></div><div><span>Total</span><b>${money(t.total)}</b></div><div class="balance"><span>Sisa</span><b>${money(t.balance)}</b></div></div><div class="mobile-order-actions"><button class="open" onclick="editOrder('${o.id}')">Buka</button><button onclick="duplicateOrder('${o.id}')">Duplikat</button><button onclick="printOrder('${o.id}','thermal')">Thermal</button><button class="print" onclick="printOrder('${o.id}','f4')">Print</button><button class="danger" onclick="moveToTrash('${o.id}')">Hapus</button></div></article>`}).join('')}</div>`;
+ return table+cards;
+}
 
 function renderOrders(){const p=$('#page-orders');p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><input id="orderSearch" placeholder="Cari nomor nota atau pelanggan..." style="min-width:280px;padding:10px 12px;border:1px solid var(--line);border-radius:12px"><select id="statusFilter" class="btn"><option value="">Semua status</option>${['Baru Masuk','Diproses','Sablon','Jahit','Siap Diambil','Selesai'].map(x=>`<option>${x}</option>`).join('')}</select><span class="spacer"></span><button id="bulkDeleteBtn" class="btn danger" onclick="bulkTrash()" disabled>Hapus Terpilih (0)</button><button class="btn primary" onclick="startNew()">＋ Pesanan Baru</button></div><div id="ordersList" style="margin-top:16px"></div></div>`;const refresh=()=>{const q=$('#orderSearch').value.toLowerCase(),s=$('#statusFilter').value;const arr=[...db.orders].sort((a,b)=>b.createdAt-a.createdAt).filter(o=>(!q||o.invoice.toLowerCase().includes(q)||(o.customer||'').toLowerCase().includes(q))&&(!s||o.productionStatus===s));$('#ordersList').innerHTML=arr.length?ordersTable(arr,true):'<div class="empty">Pesanan tidak ditemukan.</div>'};$('#orderSearch').oninput=refresh;$('#statusFilter').onchange=refresh;refresh()}
 window.toggleAllOrders=checked=>{$$('.order-check').forEach(x=>x.checked=checked);updateBulkCount()};
@@ -405,8 +434,6 @@ function renderActivity(){const p=$('#page-activity');if(!p)return;p.innerHTML=`
 window.exportActivity=()=>downloadJSON(db.activity,`aktivitas-shirogane-${today()}.json`);
 window.clearActivity=()=>{if(confirm('Bersihkan seluruh riwayat aktivitas?')){db.activity=[];save();renderActivity();toast('Riwayat aktivitas dibersihkan.')}};
 
-const originalSaveOrder=window.saveOrder;
-window.saveOrder=(print=false)=>{const wasEdit=!!editingOrder;const inv=draft?.invoice;originalSaveOrder(print);logActivity(wasEdit?'Edit Nota':'Buat Nota',inv||'');};
 const originalPrintOrder=window.printOrder;
 window.printOrder=(id,type)=>{const o=db.orders.find(x=>x.id===id);try{if(o)logActivity('Cetak Nota',`${o.invoice} • ${String(type).toUpperCase()}`)}catch(err){console.warn(err)}return originalPrintOrder(id,type)};
 
