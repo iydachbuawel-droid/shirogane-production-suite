@@ -146,7 +146,7 @@ function blankDraft(){return{id:uid(),invoice:nextInvoice(),date:today(),dueDate
 function renderOrderForm(){if(!draft)draft=blankDraft();const p=$('#page-new-order');p.innerHTML=`<div class="split"><div>
 <div class="panel" style="margin-top:0"><h2>Data Pesanan</h2><div class="form-grid three"><div class="field"><label>No. Nota</label><input id="fInvoice" value="${draft.invoice}"></div><div class="field"><label>Tanggal Masuk</label><input type="date" id="fDate" value="${draft.date}"></div><div class="field"><label>Estimasi Selesai</label><input type="date" id="fDue" value="${draft.dueDate}"></div><div class="field"><label>Nama Pelanggan</label><input id="fCustomer" value="${esc(draft.customer)}" placeholder="Nama pelanggan"></div><div class="field"><label>Nomor WhatsApp</label><input id="fPhone" value="${esc(draft.phone)}" placeholder="08..."></div><div class="field"><label>Status Produksi</label><select id="fProd">${['Baru Masuk','Diproses','Sablon','Jahit','Siap Diambil','Selesai'].map(x=>`<option ${draft.productionStatus===x?'selected':''}>${x}</option>`).join('')}</select></div></div><div class="field" style="margin-top:14px"><label>Alamat / Catatan Pelanggan</label><textarea id="fAddress">${esc(draft.address)}</textarea></div></div>
 <div class="panel"><div class="toolbar"><h2>Detail Barang</h2><span class="spacer"></span><button class="btn primary" id="addItem">＋ Tambah Barang</button></div><div id="items"></div></div>
-<div class="panel"><h2>Gambar Desain</h2><label class="upload-box" for="imageInput">Klik untuk memasukkan PNG/JPG desain atau mockup<input id="imageInput" type="file" accept="image/*" multiple hidden></label><div id="thumbs" class="thumbs" style="margin-top:12px"></div></div>
+<div class="panel"><h2>Gambar Desain</h2><label class="upload-box" for="imageInput">Klik untuk memasukkan gambar desain (otomatis WebP, maks. 3 gambar)<input id="imageInput" type="file" accept="image/*" multiple hidden></label><div id="thumbs" class="thumbs" style="margin-top:12px"></div></div>
 <div class="panel"><h2>Pembayaran & Catatan</h2><div class="form-grid three"><div class="field"><label>Diskon</label><input type="number" id="fDiscount" value="${draft.discount||0}"></div><div class="field"><label>Panjar / Uang Muka</label><input type="number" id="fDeposit" value="${draft.deposit||0}"></div><div class="field"><label>Status Pembayaran</label><select id="fPay">${['Belum Bayar','Sudah Panjar','Lunas'].map(x=>`<option ${draft.paymentStatus===x?'selected':''}>${x}</option>`).join('')}</select></div></div><div class="field" style="margin-top:14px"><label>Catatan Pesanan</label><textarea id="fNotes">${esc(draft.notes)}</textarea></div></div>
 <div class="toolbar no-print" style="margin-top:18px"><button class="btn danger" onclick="cancelEdit()">Batal</button><span class="spacer"></span><button class="btn" onclick="saveCurrent(false)">Simpan</button><button class="btn gold" onclick="saveCurrent(true)">Simpan & Cetak</button></div>
 </div><div class="sticky"><div class="panel" style="margin-top:0"><h2>Preview Nota</h2><div id="livePreview"></div></div></div></div>`;
@@ -160,28 +160,28 @@ function designImageHTML(im,alt='Gambar desain'){
  return src?`<img src="${src}" alt="${esc(alt)}" onerror="this.closest('.thumb')?.classList.add('image-missing');this.remove()">`:`<div class="image-placeholder">Gambar belum tersedia di perangkat ini</div>`;
 }
 function esc(s=''){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
-function bindForm(){['Invoice','Date','Due','Customer','Phone','Address','Prod','Discount','Deposit','Pay','Notes'].forEach(k=>{const el=$('#f'+k);const key={Invoice:'invoice',Date:'date',Due:'dueDate',Customer:'customer',Phone:'phone',Address:'address',Prod:'productionStatus',Discount:'discount',Deposit:'deposit',Pay:'paymentStatus',Notes:'notes'}[k];el.oninput=()=>{draft[key]=el.type==='number'?Number(el.value||0):el.value;updatePreview()}});$('#addItem').onclick=()=>{draft.items.push({id:uid(),productId:'',name:'',price:0,sizes:{XS:0,S:0,M:0,L:0,XL:0,'2XL':0,'3XL':0,'4XL':0,'5XL':0},extras:{...db.settings.sizeExtras}});renderItems();updatePreview()};$('#imageInput').onchange=async e=>{for(const f of e.target.files){if(f.size>2_500_000){toast('Gambar terlalu besar. Maksimal 2,5 MB per file.');continue}draft.images.push({id:uid(),name:f.name,data:await fileData(f)});}renderThumbs();updatePreview()}}
-function fileData(f){
- return new Promise(resolve=>{
-  const reader=new FileReader();
-  reader.onload=()=>{
-   const original=reader.result;
-   if(!String(f.type||'').startsWith('image/'))return resolve(original);
-   const img=new Image();
-   img.onload=()=>{
-    try{
-     const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height));
-     const canvas=document.createElement('canvas');
-     canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
-     canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-     resolve(canvas.toDataURL('image/jpeg',0.78));
-    }catch{resolve(original)}
-   };
-   img.onerror=()=>resolve(original);img.src=original;
-  };
-  reader.onerror=()=>resolve('');reader.readAsDataURL(f);
- });
+function bindForm(){['Invoice','Date','Due','Customer','Phone','Address','Prod','Discount','Deposit','Pay','Notes'].forEach(k=>{const el=$('#f'+k);const key={Invoice:'invoice',Date:'date',Due:'dueDate',Customer:'customer',Phone:'phone',Address:'address',Prod:'productionStatus',Discount:'discount',Deposit:'deposit',Pay:'paymentStatus',Notes:'notes'}[k];el.oninput=()=>{draft[key]=el.type==='number'?Number(el.value||0):el.value;updatePreview()}});$('#addItem').onclick=()=>{draft.items.push({id:uid(),productId:'',name:'',price:0,sizes:{XS:0,S:0,M:0,L:0,XL:0,'2XL':0,'3XL':0,'4XL':0,'5XL':0},extras:{...db.settings.sizeExtras}});renderItems();updatePreview()};$('#imageInput').onchange=async e=>{const files=[...e.target.files];if(!files.length)return;const slots=Math.max(0,3-(draft.images||[]).length);if(!slots){toast('Maksimal 3 gambar desain per pesanan.');e.target.value='';return}for(const f of files.slice(0,slots)){if(f.size>20_000_000){toast(`${f.name}: file lebih dari 20 MB.`);continue}toast(`Mengoptimalkan ${f.name}...`);const optimized=await optimizeDesignImage(f);if(!optimized?.data){toast(`${f.name}: gambar tidak dapat diproses.`);continue}draft.images.push({id:uid(),name:optimized.name,data:optimized.data,width:optimized.width,height:optimized.height,originalBytes:f.size,optimizedBytes:optimized.bytes,optimized:true});const before=Math.max(1,Math.round(f.size/1024)),after=Math.max(1,Math.round(optimized.bytes/1024));toast(`Gambar dioptimalkan: ${before} KB → ${after} KB`);}if(files.length>slots)toast(`Maksimal 3 gambar. ${files.length-slots} file tidak ditambahkan.`);e.target.value='';renderThumbs();updatePreview()}}
+function dataUrlByteSize(dataUrl=''){const base64=String(dataUrl).split(',')[1]||'';return Math.ceil(base64.length*3/4)}
+function readImageFile(file){return new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>resolve({img,original:reader.result});img.onerror=()=>resolve(null);img.src=reader.result};reader.onerror=()=>resolve(null);reader.readAsDataURL(file)})}
+async function optimizeDesignImage(file){
+ const loaded=await readImageFile(file);if(!loaded)return null;
+ const {img}=loaded;const MAX_DIM=1200,TARGET=160*1024,HARD_MAX=250*1024;
+ let scale=Math.min(1,MAX_DIM/Math.max(img.naturalWidth||img.width,img.naturalHeight||img.height));
+ let width=Math.max(1,Math.round((img.naturalWidth||img.width)*scale));let height=Math.max(1,Math.round((img.naturalHeight||img.height)*scale));
+ let best=null;
+ for(let round=0;round<5;round++){
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d',{alpha:false});ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';ctx.fillStyle='#fff';ctx.fillRect(0,0,width,height);ctx.drawImage(img,0,0,width,height);
+  for(const quality of [0.72,0.66,0.60,0.54,0.48]){
+   const data=canvas.toDataURL('image/webp',quality);const bytes=dataUrlByteSize(data);best={data,bytes,width,height};
+   if(bytes<=TARGET)return {...best,name:String(file.name||'gambar').replace(/\.[^.]+$/,'')+'.webp'};
+   if(bytes<=HARD_MAX&&quality<=0.60)return {...best,name:String(file.name||'gambar').replace(/\.[^.]+$/,'')+'.webp'};
+  }
+  width=Math.max(480,Math.round(width*0.86));height=Math.max(480,Math.round(height*0.86));
+ }
+ return best?{...best,name:String(file.name||'gambar').replace(/\.[^.]+$/,'')+'.webp'}:null;
 }
+function fileData(f){return new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result||'');reader.onerror=()=>resolve('');reader.readAsDataURL(f)})}
 function renderItems(){const el=$('#items');if(!draft.items.length){el.innerHTML='<div class="empty">Belum ada barang.</div>';return}el.innerHTML=draft.items.map((it,i)=>{const calc=orderTotals({...draft,items:[it],discount:0,deposit:0});return `<div class="item-card"><div class="item-head"><strong>Barang ${i+1}</strong><span class="item-calc">${calc.qty} pcs × ${money(it.price)} = <b>${money(calc.subtotal)}</b></span><button class="btn small danger" onclick="removeItem(${i})">Hapus</button></div><div class="form-grid three"><div class="field"><label>Pilih Produk</label><select onchange="pickProduct(${i},this.value)"><option value="">-- Pilih daftar harga --</option>${db.products.map(p=>`<option value="${p.id}" ${it.productId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div><div class="field"><label>Nama Barang</label><input value="${esc(it.name)}" oninput="changeItem(${i},'name',this.value)"></div><div class="field"><label>Harga Dasar / pcs</label><input type="number" min="0" step="1000" value="${it.price||0}" oninput="changeItem(${i},'price',this.value)"></div></div><div class="sizes" style="margin-top:12px">${SIZE_KEYS.map(s=>`<div class="field"><label>${s}</label><input type="number" min="0" step="1" value="${it.sizes[s]||0}" oninput="changeSize(${i},'${s}',this.value)"></div>`).join('')}</div>${calc.extra>0?`<div class="calc-note">Tambahan ukuran barang ini: ${calc.extraBreakdown.map(x=>`${x.size}: ${x.qty} pcs × ${money(x.rate)} = ${money(x.amount)}`).join(' • ')}</div>`:''}</div>`}).join('')}
 window.pickProduct=(i,id)=>{const p=db.products.find(x=>x.id===id);if(!p)return;Object.assign(draft.items[i],{productId:id,name:p.name,price:p.price});renderItems();updatePreview()};window.changeItem=(i,k,v)=>{draft.items[i][k]=k==='price'?safeNumber(v):v;updatePreview()};window.changeSize=(i,s,v)=>{draft.items[i].sizes[s]=safeQty(v);updatePreview()};window.removeItem=i=>{draft.items.splice(i,1);renderItems();updatePreview()};window.removeImage=i=>{draft.images.splice(i,1);renderThumbs();updatePreview()};
 function renderThumbs(){$('#thumbs').innerHTML=draft.images.map((im,i)=>`<div class="thumb">${designImageHTML(im,im.name||'Gambar desain')}<button onclick="removeImage(${i})">×</button></div>`).join('')}
@@ -522,12 +522,13 @@ window.SHIROGANE_STORAGE_READY=(async()=>{
  }catch(err){console.error('Inisialisasi penyimpanan besar gagal:',err);return db}
 })();
 
-/* ===== v2.3.3 — opening experience and Android Back navigation ===== */
-(function installMobileAppExperience(){
+/* ===== v3.0.2 — opening splash only; Back handling lives in exit-confirm.js ===== */
+(function installOpeningSplash(){
   const splash=document.getElementById('appSplash');
   const startedAt=Date.now();
   const hideSplash=()=>{
-    if(!splash)return;
+    if(!splash||splash.dataset.hidden==='1')return;
+    splash.dataset.hidden='1';
     const wait=Math.max(0,900-(Date.now()-startedAt));
     setTimeout(()=>{
       splash.classList.add('is-hiding');
@@ -539,96 +540,6 @@ window.SHIROGANE_STORAGE_READY=(async()=>{
     Promise.resolve(window.SHIROGANE_STORAGE_READY).catch(()=>null),
     new Promise(resolve=>setTimeout(resolve,1800))
   ]).finally(hideSplash);
-  window.addEventListener('load',()=>setTimeout(hideSplash,120));
-
-  if(!('pushState' in history)||typeof nav!=='function')return;
-  let handlingHistory=false;
-  let lastBackAt=0;
-  const currentPage=()=>document.querySelector('.page.active')?.id?.replace('page-','')||'dashboard';
-  const baseNav=nav;
-
-  nav=function(page,options={}){
-    const previous=currentPage();
-    baseNav(page);
-    if(!handlingHistory && options.push!==false && page!==previous){
-      history.pushState({shiroganeApp:true,page},'',location.href);
-    }
-  };
-  window.nav=nav;
-
-  // Keep one guard entry so Back on Dashboard does not close the PWA immediately.
-  history.replaceState({shiroganeApp:true,root:true,page:currentPage()},'',location.href);
-  history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-
-  function ensureExitModal(){
-    let modal=document.getElementById('exitConfirmModal');
-    if(modal)return modal;
-    document.body.insertAdjacentHTML('beforeend',`<div id="exitConfirmModal" class="exit-confirm" aria-hidden="true"><div class="exit-confirm-card" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle"><div class="exit-confirm-icon">S</div><h2 id="exitConfirmTitle">Keluar dari SHIROGANE?</h2><p>Apakah Anda yakin ingin keluar dari aplikasi?</p><small>Semua data yang sudah disimpan tetap aman.</small><div class="exit-confirm-actions"><button type="button" class="stay" id="exitStayBtn">Tetap di Aplikasi</button><button type="button" class="leave" id="exitLeaveBtn">Keluar</button></div></div></div>`);
-    modal=document.getElementById('exitConfirmModal');
-    document.getElementById('exitStayBtn').addEventListener('click',hideExitConfirmation);
-    document.getElementById('exitLeaveBtn').addEventListener('click',()=>{
-      hideExitConfirmation();
-      // Move past the two internal guard entries. In an installed PWA this closes the app;
-      // in a browser tab it returns to the previous page.
-      history.go(-2);
-    });
-    modal.addEventListener('click',event=>{if(event.target===modal)hideExitConfirmation()});
-    return modal;
-  }
-  function showExitConfirmation(){
-    const modal=ensureExitModal();
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('exit-confirm-open');
-  }
-  function hideExitConfirmation(){
-    const modal=document.getElementById('exitConfirmModal');
-    if(!modal)return;
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-    document.body.classList.remove('exit-confirm-open');
-    lastBackAt=0;
-  }
-
-  window.addEventListener('popstate',event=>{
-    const sidebar=document.querySelector('.sidebar');
-    if(sidebar?.classList.contains('open')){
-      sidebar.classList.remove('open');
-      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-      return;
-    }
-    const shownModal=document.querySelector('.modal-backdrop.show');
-    if(shownModal){
-      shownModal.classList.remove('show');
-      shownModal.setAttribute('aria-hidden','true');
-      document.body.classList.remove('modal-open');
-      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-      return;
-    }
-
-    const targetPage=event.state?.page;
-    if(targetPage && targetPage!=='dashboard'){
-      handlingHistory=true;
-      try{baseNav(targetPage)}finally{handlingHistory=false}
-      return;
-    }
-
-    const active=currentPage();
-    if(active!=='dashboard'){
-      handlingHistory=true;
-      try{baseNav('dashboard')}finally{handlingHistory=false}
-      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-      return;
-    }
-
-    const now=Date.now();
-    if(now-lastBackAt<2000){
-      showExitConfirmation();
-      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-      return;
-    }
-    lastBackAt=now;
-    toast('Tekan kembali sekali lagi untuk keluar.');
-    history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-  });
+  window.addEventListener('load',()=>setTimeout(hideSplash,120),{once:true});
 })();
+
