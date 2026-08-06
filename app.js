@@ -522,12 +522,13 @@ window.SHIROGANE_STORAGE_READY=(async()=>{
  }catch(err){console.error('Inisialisasi penyimpanan besar gagal:',err);return db}
 })();
 
-/* ===== v2.3.3 — opening experience and Android Back navigation ===== */
-(function installMobileAppExperience(){
+/* ===== v3.0.2 — opening splash only; Back handling lives in exit-confirm.js ===== */
+(function installOpeningSplash(){
   const splash=document.getElementById('appSplash');
   const startedAt=Date.now();
   const hideSplash=()=>{
-    if(!splash)return;
+    if(!splash||splash.dataset.hidden==='1')return;
+    splash.dataset.hidden='1';
     const wait=Math.max(0,900-(Date.now()-startedAt));
     setTimeout(()=>{
       splash.classList.add('is-hiding');
@@ -539,96 +540,6 @@ window.SHIROGANE_STORAGE_READY=(async()=>{
     Promise.resolve(window.SHIROGANE_STORAGE_READY).catch(()=>null),
     new Promise(resolve=>setTimeout(resolve,1800))
   ]).finally(hideSplash);
-  window.addEventListener('load',()=>setTimeout(hideSplash,120));
-
-  if(!('pushState' in history)||typeof nav!=='function')return;
-  let handlingHistory=false;
-  let lastBackAt=0;
-  const currentPage=()=>document.querySelector('.page.active')?.id?.replace('page-','')||'dashboard';
-  const baseNav=nav;
-
-  nav=function(page,options={}){
-    const previous=currentPage();
-    baseNav(page);
-    if(!handlingHistory && options.push!==false && page!==previous){
-      history.pushState({shiroganeApp:true,page},'',location.href);
-    }
-  };
-  window.nav=nav;
-
-  // Keep one guard entry so Back on Dashboard does not close the PWA immediately.
-  history.replaceState({shiroganeApp:true,root:true,page:currentPage()},'',location.href);
-  history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-
-  function ensureExitModal(){
-    let modal=document.getElementById('exitConfirmModal');
-    if(modal)return modal;
-    document.body.insertAdjacentHTML('beforeend',`<div id="exitConfirmModal" class="exit-confirm" aria-hidden="true"><div class="exit-confirm-card" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle"><div class="exit-confirm-icon">S</div><h2 id="exitConfirmTitle">Keluar dari SHIROGANE?</h2><p>Apakah Anda yakin ingin keluar dari aplikasi?</p><small>Semua data yang sudah disimpan tetap aman.</small><div class="exit-confirm-actions"><button type="button" class="stay" id="exitStayBtn">Tetap di Aplikasi</button><button type="button" class="leave" id="exitLeaveBtn">Keluar</button></div></div></div>`);
-    modal=document.getElementById('exitConfirmModal');
-    document.getElementById('exitStayBtn').addEventListener('click',hideExitConfirmation);
-    document.getElementById('exitLeaveBtn').addEventListener('click',()=>{
-      hideExitConfirmation();
-      // Move past the two internal guard entries. In an installed PWA this closes the app;
-      // in a browser tab it returns to the previous page.
-      history.go(-2);
-    });
-    modal.addEventListener('click',event=>{if(event.target===modal)hideExitConfirmation()});
-    return modal;
-  }
-  function showExitConfirmation(){
-    const modal=ensureExitModal();
-    modal.classList.add('show');
-    modal.setAttribute('aria-hidden','false');
-    document.body.classList.add('exit-confirm-open');
-  }
-  function hideExitConfirmation(){
-    const modal=document.getElementById('exitConfirmModal');
-    if(!modal)return;
-    modal.classList.remove('show');
-    modal.setAttribute('aria-hidden','true');
-    document.body.classList.remove('exit-confirm-open');
-    lastBackAt=0;
-  }
-
-  window.addEventListener('popstate',event=>{
-    const sidebar=document.querySelector('.sidebar');
-    if(sidebar?.classList.contains('open')){
-      sidebar.classList.remove('open');
-      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-      return;
-    }
-    const shownModal=document.querySelector('.modal-backdrop.show');
-    if(shownModal){
-      shownModal.classList.remove('show');
-      shownModal.setAttribute('aria-hidden','true');
-      document.body.classList.remove('modal-open');
-      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
-      return;
-    }
-
-    const targetPage=event.state?.page;
-    if(targetPage && targetPage!=='dashboard'){
-      handlingHistory=true;
-      try{baseNav(targetPage)}finally{handlingHistory=false}
-      return;
-    }
-
-    const active=currentPage();
-    if(active!=='dashboard'){
-      handlingHistory=true;
-      try{baseNav('dashboard')}finally{handlingHistory=false}
-      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-      return;
-    }
-
-    const now=Date.now();
-    if(now-lastBackAt<2000){
-      showExitConfirmation();
-      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-      return;
-    }
-    lastBackAt=now;
-    toast('Tekan kembali sekali lagi untuk keluar.');
-    history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
-  });
+  window.addEventListener('load',()=>setTimeout(hideSplash,120),{once:true});
 })();
+
