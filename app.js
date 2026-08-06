@@ -243,27 +243,25 @@ window.printMobilePreview=()=>{
  document.body.classList.add('mobile-printing');
  setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
 };
-window.downloadOrderPdf=async id=>{
- const order=db.orders.find(x=>x.id===id)||db.trash?.find(x=>x.id===id);
- if(!order)return toast('Nota tidak ditemukan.');
- if(typeof window.__SHIROGANE_BUILD_PDF!=='function')return toast('Generator PDF belum siap. Muat ulang aplikasi.');
- const button=document.querySelector('[data-direct-pdf]');
+window.downloadPreviewPdf=async (element,invoice,button)=>{
+ if(typeof window.SHROGANE_downloadPreviewPdf!=='function')return toast('Generator PDF belum siap. Pastikan internet aktif lalu muat ulang.');
  const oldText=button?.textContent;
  try{
   if(button){button.disabled=true;button.textContent='Menyiapkan PDF…';}
-  const blob=await window.__SHIROGANE_BUILD_PDF(order);
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;
-  a.download=`Nota-${String(order.invoice||'SHIROGANE').replace(/[^a-zA-Z0-9_-]/g,'-')}.pdf`;
-  document.body.appendChild(a);a.click();a.remove();
-  setTimeout(()=>URL.revokeObjectURL(url),1500);
-  try{logActivity('Download PDF',order.invoice)}catch{}
+  const name=`Nota-${String(invoice||'SHIROGANE').replace(/[^a-zA-Z0-9_-]/g,'-')}.pdf`;
+  await window.SHROGANE_downloadPreviewPdf(element,name);
+  try{logActivity('Download PDF',invoice)}catch{}
   toast('PDF berhasil diunduh.');
- }catch(err){console.error('Download PDF gagal:',err);toast('PDF gagal dibuat. Coba lagi.');}
+ }catch(err){console.error('Download PDF gagal:',err);toast('PDF gagal dibuat: '+(err?.message||'Coba lagi.'));}
  finally{if(button){button.disabled=false;button.textContent=oldText||'📄 Download PDF';}}
 };
-window.downloadMobilePdf=()=>mobilePrintOrderId&&window.downloadOrderPdf(mobilePrintOrderId);
+window.downloadMobilePdf=()=>{
+ const order=db.orders.find(x=>x.id===mobilePrintOrderId)||db.trash?.find(x=>x.id===mobilePrintOrderId);
+ const area=document.querySelector('#mobilePrintOverlay .mobile-print-area');
+ const button=document.querySelector('#mobilePrintOverlay [data-direct-pdf]');
+ if(!order||!area)return toast('Preview nota tidak ditemukan.');
+ return window.downloadPreviewPdf(area,order.invoice,button);
+};
 function openMobilePrintPreview(o,type){
  ensureMobilePrintStyles();
  closeMobilePrintPreview();
@@ -289,7 +287,7 @@ window.printOrder=(id,type)=>{
   ? `<div class="preview-toolbar no-print"><button onclick="window.print()">🖨 Print Thermal</button><button onclick="window.close()">✕ Tutup</button></div>`
   : `<div class="preview-toolbar no-print"><button onclick="window.print()">🖨 Print</button><button class="pdf-button" onclick="saveSamePreviewPDF()">📄 Download PDF</button><button onclick="window.close()">✕ Tutup</button><span id="pdfStatus"></span></div>`;
  w.document.open();
- w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>${esc(o.invoice)}</title><link rel="stylesheet" href="styles.css"><style>
+ w.document.write(`<!doctype html><html><head><meta charset="utf-8"><base href="${new URL('.',location.href).href}"><title>${esc(o.invoice)}</title><link rel="stylesheet" href="styles.css?v=2.3.1"><script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"><\/script><script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"><\/script><script src="preview-pdf.js?v=2.3.1"><\/script><style>
  @page{size:${isThermal?'80mm auto':'A4 portrait'};margin:${isThermal?'3mm':'10mm'}}
  *{box-sizing:border-box}body{margin:0;background:#eef2f7}.preview-toolbar{position:sticky;top:0;z-index:9999;display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;background:#111827;box-shadow:0 4px 18px rgba(0,0,0,.2)}.preview-toolbar button{border:0;border-radius:9px;padding:10px 16px;background:#fff;color:#111827;font-weight:800;cursor:pointer}.preview-toolbar .pdf-button{background:#dc2626;color:#fff}.preview-toolbar #pdfStatus{color:#fff;font-size:12px}.print-area{background:#fff;margin:18px auto}.pdf-export .preview-toolbar{display:none!important}@media print{body{background:#fff}.preview-toolbar{display:none!important}.print-area{margin:0 auto!important}}
  </style></head><body>${toolbar}<div class="print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div><script>
@@ -305,13 +303,14 @@ window.printOrder=(id,type)=>{
      else if(status)status.textContent='';
      return;
    }
-   if(window.opener?.downloadOrderPdf){
+   const area=document.querySelector('.print-area');
+   if(typeof window.SHROGANE_downloadPreviewPdf==='function' && area){
      if(status)status.textContent='Mengunduh PDF...';
-     await window.opener.downloadOrderPdf(orderId);
+     await window.SHROGANE_downloadPreviewPdf(area,'Nota-'+String(invoiceName).replace(/[^a-zA-Z0-9_-]/g,'-')+'.pdf');
      if(status)status.textContent='PDF berhasil diunduh';
      return;
    }
-   alert('Generator PDF tidak tersedia. Kembali ke aplikasi lalu coba lagi.');
+   alert('Generator PDF belum siap. Pastikan internet aktif lalu muat ulang.');
  }
  window.addEventListener('load',()=>setTimeout(()=>window.print(),500));
  <\/script></body></html>`);
