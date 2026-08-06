@@ -179,7 +179,7 @@
     const bankFile = typeof bankAssets !== 'undefined' ? bankAssets[bankKey] : '';
     const bankSource = (db.settings.customBankLogos || {})[bankKey] || (bankFile ? `assets/banks/${bankFile}` : '');
     const bankLogo = await loadImage(bankSource);
-    const designImages = await Promise.all((order.images || []).slice(0, 3).map(image => loadImage(image.data)));
+    const designImages = (await Promise.all((order.images || []).slice(0, 3).map(image => { const src=image?.data||''; return /^(data:image\/|blob:|https?:\/\/)/i.test(src)?loadImage(src):Promise.resolve(null); }))).filter(Boolean);
 
     let y = 52;
     drawContain(ctx, logo, outer, y, 108, 108);

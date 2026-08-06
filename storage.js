@@ -93,5 +93,34 @@
     }
   }
 
-  window.ShiroganeStorage = { saveDB, loadDB, migrateLegacy, lightweight };
+  function validImageData(value) {
+    return typeof value === 'string' && (/^data:image\//i.test(value) || /^blob:/i.test(value) || /^https?:\/\//i.test(value));
+  }
+
+  function mergeMissingImages(current, incoming) {
+    const result = structuredClone(incoming || {});
+    const currentById = new Map();
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of ((current && current[collectionName]) || [])) {
+        for (const image of (order.images || [])) {
+          if (image?.id && validImageData(image.data)) currentById.set(image.id, image.data);
+        }
+      }
+    }
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (result[collectionName] || [])) {
+        order.images = (order.images || []).map(image => {
+          const copy = { ...image };
+          if (!validImageData(copy.data) && copy.id && currentById.has(copy.id)) {
+            copy.data = currentById.get(copy.id);
+            delete copy.storedInIndexedDB;
+          }
+          return copy;
+        });
+      }
+    }
+    return result;
+  }
+
+  window.ShiroganeStorage = { saveDB, loadDB, migrateLegacy, lightweight, mergeMissingImages, validImageData };
 })();

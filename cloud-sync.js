@@ -140,7 +140,7 @@
   }
 
   function cleanRecoveryUrl() {
-    cleanRecoveryUrl();
+    try{history.replaceState(null,'',appBaseUrl());}catch{}
   }
 
   function friendlyAuthError(error) {
@@ -258,6 +258,7 @@
 
   async function pushCloud(showToast = false) {
     if (!session || syncing) return 'Cloud belum siap.';
+    if(window.SHIROGANE_STORAGE_READY) await window.SHIROGANE_STORAGE_READY;
     syncing = true; setStatus('Menyimpan...', 'busy');
     try {
       const payload = structuredClone(db);
@@ -285,7 +286,7 @@
         return 'Belum ada data di cloud.';
       }
       if (!force && localHasData(db)) return 'Data lokal tidak ditimpa otomatis.';
-      db = data.state;
+      db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, data.state) : data.state;
       if (typeof normalizeSettings === 'function') normalizeSettings();
       if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
       writeMeta({ updatedAt: data.updated_at, userId: session.user.id });
@@ -343,7 +344,7 @@
         try {
           if (typeof downloadJSON === 'function') downloadJSON(db, `backup-sebelum-cloud-${new Date().toISOString().slice(0,10)}.json`);
         } catch {}
-        db = cloudRow.state;
+        db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, cloudRow.state) : cloudRow.state;
         if (typeof normalizeSettings === 'function') normalizeSettings();
         if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
         writeMeta({ updatedAt: cloudRow.updated_at, userId: session.user.id });

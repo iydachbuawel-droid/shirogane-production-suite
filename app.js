@@ -146,6 +146,14 @@ function renderOrderForm(){if(!draft)draft=blankDraft();const p=$('#page-new-ord
 <div class="toolbar no-print" style="margin-top:18px"><button class="btn danger" onclick="cancelEdit()">Batal</button><span class="spacer"></span><button class="btn" onclick="saveCurrent(false)">Simpan</button><button class="btn gold" onclick="saveCurrent(true)">Simpan & Cetak</button></div>
 </div><div class="sticky"><div class="panel" style="margin-top:0"><h2>Preview Nota</h2><div id="livePreview"></div></div></div></div>`;
  bindForm();renderItems();renderThumbs();updatePreview();}
+function safeImageSrc(im){
+ const src=im&&typeof im.data==='string'?im.data:'';
+ return /^(data:image\/|blob:|https?:\/\/)/i.test(src)?src:'';
+}
+function designImageHTML(im,alt='Gambar desain'){
+ const src=safeImageSrc(im);
+ return src?`<img src="${src}" alt="${esc(alt)}" onerror="this.closest('.thumb')?.classList.add('image-missing');this.remove()">`:`<div class="image-placeholder">Gambar belum tersedia di perangkat ini</div>`;
+}
 function esc(s=''){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function bindForm(){['Invoice','Date','Due','Customer','Phone','Address','Prod','Discount','Deposit','Pay','Notes'].forEach(k=>{const el=$('#f'+k);const key={Invoice:'invoice',Date:'date',Due:'dueDate',Customer:'customer',Phone:'phone',Address:'address',Prod:'productionStatus',Discount:'discount',Deposit:'deposit',Pay:'paymentStatus',Notes:'notes'}[k];el.oninput=()=>{draft[key]=el.type==='number'?Number(el.value||0):el.value;updatePreview()}});$('#addItem').onclick=()=>{draft.items.push({id:uid(),productId:'',name:'',price:0,sizes:{XS:0,S:0,M:0,L:0,XL:0,'2XL':0,'3XL':0,'4XL':0,'5XL':0},extras:{...db.settings.sizeExtras}});renderItems();updatePreview()};$('#imageInput').onchange=async e=>{for(const f of e.target.files){if(f.size>2_500_000){toast('Gambar terlalu besar. Maksimal 2,5 MB per file.');continue}draft.images.push({id:uid(),name:f.name,data:await fileData(f)});}renderThumbs();updatePreview()}}
 function fileData(f){
@@ -171,7 +179,7 @@ function fileData(f){
 }
 function renderItems(){const el=$('#items');if(!draft.items.length){el.innerHTML='<div class="empty">Belum ada barang.</div>';return}el.innerHTML=draft.items.map((it,i)=>{const calc=orderTotals({...draft,items:[it],discount:0,deposit:0});return `<div class="item-card"><div class="item-head"><strong>Barang ${i+1}</strong><span class="item-calc">${calc.qty} pcs × ${money(it.price)} = <b>${money(calc.subtotal)}</b></span><button class="btn small danger" onclick="removeItem(${i})">Hapus</button></div><div class="form-grid three"><div class="field"><label>Pilih Produk</label><select onchange="pickProduct(${i},this.value)"><option value="">-- Pilih daftar harga --</option>${db.products.map(p=>`<option value="${p.id}" ${it.productId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div><div class="field"><label>Nama Barang</label><input value="${esc(it.name)}" oninput="changeItem(${i},'name',this.value)"></div><div class="field"><label>Harga Dasar / pcs</label><input type="number" min="0" step="1000" value="${it.price||0}" oninput="changeItem(${i},'price',this.value)"></div></div><div class="sizes" style="margin-top:12px">${SIZE_KEYS.map(s=>`<div class="field"><label>${s}</label><input type="number" min="0" step="1" value="${it.sizes[s]||0}" oninput="changeSize(${i},'${s}',this.value)"></div>`).join('')}</div>${calc.extra>0?`<div class="calc-note">Tambahan ukuran barang ini: ${calc.extraBreakdown.map(x=>`${x.size}: ${x.qty} pcs × ${money(x.rate)} = ${money(x.amount)}`).join(' • ')}</div>`:''}</div>`}).join('')}
 window.pickProduct=(i,id)=>{const p=db.products.find(x=>x.id===id);if(!p)return;Object.assign(draft.items[i],{productId:id,name:p.name,price:p.price});renderItems();updatePreview()};window.changeItem=(i,k,v)=>{draft.items[i][k]=k==='price'?safeNumber(v):v;updatePreview()};window.changeSize=(i,s,v)=>{draft.items[i].sizes[s]=safeQty(v);updatePreview()};window.removeItem=i=>{draft.items.splice(i,1);renderItems();updatePreview()};window.removeImage=i=>{draft.images.splice(i,1);renderThumbs();updatePreview()};
-function renderThumbs(){$('#thumbs').innerHTML=draft.images.map((im,i)=>`<div class="thumb"><img src="${im.data}" alt=""><button onclick="removeImage(${i})">×</button></div>`).join('')}
+function renderThumbs(){$('#thumbs').innerHTML=draft.images.map((im,i)=>`<div class="thumb">${designImageHTML(im,im.name||'Gambar desain')}<button onclick="removeImage(${i})">×</button></div>`).join('')}
 function receiptExtraDetails(o,t){
  let rows=sizeExtraDetails(o).filter(x=>safeNumber(x.amount)>0);
  if(rows.length)return rows;
@@ -206,7 +214,7 @@ function receiptHTML(o){
       return `<div class="summary-row extra-detail"><span>${label}</span><b>${complete?money(x.amount):(x.amount?money(x.amount):'')}</b></div>`;
     }).join('')+`<div class="summary-row extra-total"><span>Total tambahan biaya ukuran</span><b>${money(t.extra)}</b></div>`
   : `<div class="summary-row extra-detail"><span>Tambahan biaya ukuran</span><b>${money(0)}</b></div>`;
- return `<div class="preview"><div class="receipt-head branded">${businessLogoHTML('receipt-logo')}<div><h3>${esc(db.settings.business)}</h3><p>${esc(db.settings.subtitle)}</p><p>${esc(db.settings.address)} ${db.settings.phone?'• '+esc(db.settings.phone):''}</p></div></div><div class="receipt-meta"><div><b>No.</b> ${esc(o.invoice)}</div><div><b>Tanggal</b> ${o.date}</div><div><b>Pelanggan</b> ${esc(o.customer||'-')}</div><div><b>Selesai</b> ${o.dueDate}</div></div><div class="table-wrap"><table><thead><tr><th>Barang</th>${SIZE_KEYS.map(x=>`<th>${x}</th>`).join('')}<th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead><tbody>${(o.items||[]).map(it=>{const calc=orderTotals({...o,items:[it],discount:0,deposit:0});return `<tr><td>${esc(it.name)}</td>${SIZE_KEYS.map(s=>`<td>${safeQty((it.sizes||{})[s])||''}</td>`).join('')}<td>${calc.qty}</td><td>${money(safeNumber(it.price))}</td><td>${money(calc.subtotal)}</td></tr>`}).join('')}</tbody></table></div><div class="summary" style="margin-top:12px"><div class="summary-row"><span>Subtotal barang (${t.qty} pcs)</span><b>${money(t.subtotal)}</b></div>${extraRows}<div class="summary-row"><span>Diskon</span><b>-${money(t.discount)}</b></div><div class="summary-row total"><span>Total Tagihan</span><span>${money(t.total)}</span></div><div class="summary-row"><span>Panjar</span><b>${money(t.deposit)}</b></div><div class="summary-row balance"><span>Sisa Pembayaran</span><span>${money(t.balance)}</span></div></div>${bankBlock}${o.notes?`<p style="margin-top:12px"><b>Catatan:</b> ${esc(o.notes)}</p>`:''}${o.images?.length?`<div class="thumbs" style="margin-top:12px">${o.images.slice(0,3).map(im=>`<div class="thumb"><img src="${im.data}"></div>`).join('')}</div>`:''}<p style="text-align:center;margin-top:16px">Terima kasih telah mempercayakan pesanan kepada ${esc(db.settings.business)}.</p></div>`
+ return `<div class="preview"><div class="receipt-head branded">${businessLogoHTML('receipt-logo')}<div><h3>${esc(db.settings.business)}</h3><p>${esc(db.settings.subtitle)}</p><p>${esc(db.settings.address)} ${db.settings.phone?'• '+esc(db.settings.phone):''}</p></div></div><div class="receipt-meta"><div><b>No.</b> ${esc(o.invoice)}</div><div><b>Tanggal</b> ${o.date}</div><div><b>Pelanggan</b> ${esc(o.customer||'-')}</div><div><b>Selesai</b> ${o.dueDate}</div></div><div class="table-wrap"><table><thead><tr><th>Barang</th>${SIZE_KEYS.map(x=>`<th>${x}</th>`).join('')}<th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead><tbody>${(o.items||[]).map(it=>{const calc=orderTotals({...o,items:[it],discount:0,deposit:0});return `<tr><td>${esc(it.name)}</td>${SIZE_KEYS.map(s=>`<td>${safeQty((it.sizes||{})[s])||''}</td>`).join('')}<td>${calc.qty}</td><td>${money(safeNumber(it.price))}</td><td>${money(calc.subtotal)}</td></tr>`}).join('')}</tbody></table></div><div class="summary" style="margin-top:12px"><div class="summary-row"><span>Subtotal barang (${t.qty} pcs)</span><b>${money(t.subtotal)}</b></div>${extraRows}<div class="summary-row"><span>Diskon</span><b>-${money(t.discount)}</b></div><div class="summary-row total"><span>Total Tagihan</span><span>${money(t.total)}</span></div><div class="summary-row"><span>Panjar</span><b>${money(t.deposit)}</b></div><div class="summary-row balance"><span>Sisa Pembayaran</span><span>${money(t.balance)}</span></div></div>${bankBlock}${o.notes?`<p style="margin-top:12px"><b>Catatan:</b> ${esc(o.notes)}</p>`:''}${o.images?.length?`<div class="thumbs" style="margin-top:12px">${o.images.slice(0,3).map(im=>`<div class="thumb">${designImageHTML(im,im.name||'Gambar desain')}</div>`).join('')}</div>`:''}<p style="text-align:center;margin-top:16px">Terima kasih telah mempercayakan pesanan kepada ${esc(db.settings.business)}.</p></div>`
 }
 function updatePreview(){$('#livePreview').innerHTML=receiptHTML(draft)}
 window.cancelEdit=()=>{draft=null;editingOrder=null;nav('orders')};window.saveCurrent=print=>{if(!draft.customer.trim())return toast('Nama pelanggan wajib diisi.');if(!draft.items.length)return toast('Tambahkan minimal satu barang.');for(let i=0;i<draft.items.length;i++){const it=draft.items[i];if(!String(it.name||'').trim())return toast(`Nama barang ${i+1} wajib diisi.`);const c=orderTotals({...draft,items:[it],discount:0,deposit:0});if(c.qty<=0)return toast(`Jumlah barang ${i+1} masih 0.`);if(safeNumber(it.price)<=0)return toast(`Harga barang ${i+1} belum diisi.`)}draft.discount=safeNumber(draft.discount);draft.deposit=safeNumber(draft.deposit);const idx=db.orders.findIndex(o=>o.id===draft.id);if(idx>=0)db.orders[idx]=structuredClone(draft);else db.orders.push(structuredClone(draft));save();toast('Pesanan berhasil disimpan.');const id=draft.id;draft=null;editingOrder=null;renderAll();if(print)printOrder(id,'f4');else nav('orders')};
@@ -495,15 +503,127 @@ renderAll();
 })();
 
 
-/* Hydrate complete database from IndexedDB after initial UI load. */
-(async()=>{
+/* Hydrate complete database from IndexedDB before cloud synchronization. */
+window.SHIROGANE_STORAGE_READY=(async()=>{
  try{
-  if(!window.ShiroganeStorage)return;
+  if(!window.ShiroganeStorage)return db;
   await window.ShiroganeStorage.migrateLegacy(db);
   const full=await window.ShiroganeStorage.loadDB();
   if(full&&typeof full==='object'){
-   db=full;normalizeSettings();
+   db=window.ShiroganeStorage.mergeMissingImages(db,full);normalizeSettings();
    try{renderAll()}catch(err){console.error('Gagal merender data IndexedDB:',err)}
   }
- }catch(err){console.error('Inisialisasi penyimpanan besar gagal:',err)}
+  return db;
+ }catch(err){console.error('Inisialisasi penyimpanan besar gagal:',err);return db}
+})();
+
+/* ===== v2.3.3 — opening experience and Android Back navigation ===== */
+(function installMobileAppExperience(){
+  const splash=document.getElementById('appSplash');
+  const startedAt=Date.now();
+  const hideSplash=()=>{
+    if(!splash)return;
+    const wait=Math.max(0,900-(Date.now()-startedAt));
+    setTimeout(()=>{
+      splash.classList.add('is-hiding');
+      document.body.classList.remove('app-loading');
+      setTimeout(()=>splash.remove(),650);
+    },wait);
+  };
+  Promise.race([
+    Promise.resolve(window.SHIROGANE_STORAGE_READY).catch(()=>null),
+    new Promise(resolve=>setTimeout(resolve,1800))
+  ]).finally(hideSplash);
+  window.addEventListener('load',()=>setTimeout(hideSplash,120));
+
+  if(!('pushState' in history)||typeof nav!=='function')return;
+  let handlingHistory=false;
+  let lastBackAt=0;
+  const currentPage=()=>document.querySelector('.page.active')?.id?.replace('page-','')||'dashboard';
+  const baseNav=nav;
+
+  nav=function(page,options={}){
+    const previous=currentPage();
+    baseNav(page);
+    if(!handlingHistory && options.push!==false && page!==previous){
+      history.pushState({shiroganeApp:true,page},'',location.href);
+    }
+  };
+  window.nav=nav;
+
+  // Keep one guard entry so Back on Dashboard does not close the PWA immediately.
+  history.replaceState({shiroganeApp:true,root:true,page:currentPage()},'',location.href);
+  history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
+
+  function ensureExitModal(){
+    let modal=document.getElementById('exitConfirmModal');
+    if(modal)return modal;
+    document.body.insertAdjacentHTML('beforeend',`<div id="exitConfirmModal" class="exit-confirm" aria-hidden="true"><div class="exit-confirm-card" role="dialog" aria-modal="true" aria-labelledby="exitConfirmTitle"><div class="exit-confirm-icon">S</div><h2 id="exitConfirmTitle">Keluar dari SHIROGANE?</h2><p>Apakah Anda yakin ingin keluar dari aplikasi?</p><small>Semua data yang sudah disimpan tetap aman.</small><div class="exit-confirm-actions"><button type="button" class="stay" id="exitStayBtn">Tetap di Aplikasi</button><button type="button" class="leave" id="exitLeaveBtn">Keluar</button></div></div></div>`);
+    modal=document.getElementById('exitConfirmModal');
+    document.getElementById('exitStayBtn').addEventListener('click',hideExitConfirmation);
+    document.getElementById('exitLeaveBtn').addEventListener('click',()=>{
+      hideExitConfirmation();
+      // Move past the two internal guard entries. In an installed PWA this closes the app;
+      // in a browser tab it returns to the previous page.
+      history.go(-2);
+    });
+    modal.addEventListener('click',event=>{if(event.target===modal)hideExitConfirmation()});
+    return modal;
+  }
+  function showExitConfirmation(){
+    const modal=ensureExitModal();
+    modal.classList.add('show');
+    modal.setAttribute('aria-hidden','false');
+    document.body.classList.add('exit-confirm-open');
+  }
+  function hideExitConfirmation(){
+    const modal=document.getElementById('exitConfirmModal');
+    if(!modal)return;
+    modal.classList.remove('show');
+    modal.setAttribute('aria-hidden','true');
+    document.body.classList.remove('exit-confirm-open');
+    lastBackAt=0;
+  }
+
+  window.addEventListener('popstate',event=>{
+    const sidebar=document.querySelector('.sidebar');
+    if(sidebar?.classList.contains('open')){
+      sidebar.classList.remove('open');
+      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
+      return;
+    }
+    const shownModal=document.querySelector('.modal-backdrop.show');
+    if(shownModal){
+      shownModal.classList.remove('show');
+      shownModal.setAttribute('aria-hidden','true');
+      document.body.classList.remove('modal-open');
+      history.pushState({shiroganeApp:true,guard:true,page:currentPage()},'',location.href);
+      return;
+    }
+
+    const targetPage=event.state?.page;
+    if(targetPage && targetPage!=='dashboard'){
+      handlingHistory=true;
+      try{baseNav(targetPage)}finally{handlingHistory=false}
+      return;
+    }
+
+    const active=currentPage();
+    if(active!=='dashboard'){
+      handlingHistory=true;
+      try{baseNav('dashboard')}finally{handlingHistory=false}
+      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
+      return;
+    }
+
+    const now=Date.now();
+    if(now-lastBackAt<2000){
+      showExitConfirmation();
+      history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
+      return;
+    }
+    lastBackAt=now;
+    toast('Tekan kembali sekali lagi untuk keluar.');
+    history.pushState({shiroganeApp:true,guard:true,page:'dashboard'},'',location.href);
+  });
 })();

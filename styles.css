@@ -695,3 +695,31 @@ table{max-width:100%}
   .mobile-order-info{grid-template-columns:1fr 1fr}
   .mobile-order-info .balance{grid-column:1/-1}
 }
+
+.image-placeholder{min-height:90px;display:flex;align-items:center;justify-content:center;padding:12px;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;color:#64748b;font-size:12px;text-align:center}.thumb.image-missing{background:#f8fafc}
+
+/* ===== v2.3.3 — Premium opening splash ===== */
+body.app-loading{overflow:hidden}
+.app-splash{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#070b14 0%,#111827 48%,#172554 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
+.app-splash.is-hiding{opacity:0;visibility:hidden;pointer-events:none}
+.splash-content{position:relative;z-index:2;text-align:center;animation:splashRise .7s cubic-bezier(.2,.8,.2,1) both}
+.splash-logo-ring{width:104px;height:104px;margin:0 auto 20px;padding:3px;border-radius:32px;background:linear-gradient(135deg,#f8d47a,#b7892f,#fff0b0);box-shadow:0 18px 55px rgba(234,179,8,.22);animation:splashFloat 2.6s ease-in-out infinite}
+.splash-logo{height:100%;display:grid;place-items:center;border-radius:29px;background:#111827;font-size:52px;font-weight:950;letter-spacing:-4px;color:#f5c451;text-shadow:0 3px 18px rgba(245,196,81,.3)}
+.app-splash h1{margin:0;font-size:28px;letter-spacing:8px;font-weight:900}.app-splash p{margin:7px 0 25px;color:#cbd5e1;letter-spacing:3px;font-size:12px;text-transform:uppercase}
+.splash-loader{width:190px;height:4px;margin:auto;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.12)}.splash-loader span{display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b7892f,#f8d47a,#fff2b2);animation:splashLoad 1.25s ease-in-out infinite}
+.app-splash small{display:block;margin-top:12px;color:#94a3b8;font-size:11px;letter-spacing:.5px}
+.splash-glow{position:absolute;border-radius:999px;filter:blur(18px);opacity:.28}.splash-glow-one{width:280px;height:280px;left:-90px;top:-90px;background:#2563eb;animation:glowDrift 6s ease-in-out infinite alternate}.splash-glow-two{width:330px;height:330px;right:-120px;bottom:-130px;background:#d4a72c;animation:glowDrift 7s ease-in-out infinite alternate-reverse}
+@keyframes splashRise{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}@keyframes splashFloat{50%{transform:translateY(-7px)}}@keyframes splashLoad{0%{transform:translateX(-110%)}100%{transform:translateX(350%)}}@keyframes glowDrift{to{transform:translate(35px,25px) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.splash-content,.splash-logo-ring,.splash-loader span,.splash-glow{animation:none!important}.app-splash{transition:none}}
+
+
+/* ===== v2.3.4 — Exit confirmation ===== */
+.exit-confirm{position:fixed;inset:0;z-index:100300;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.66);backdrop-filter:blur(7px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
+.exit-confirm.show{opacity:1;visibility:visible;pointer-events:auto}
+.exit-confirm-card{width:min(390px,100%);padding:26px 22px 22px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 30px 90px rgba(2,6,23,.42);transform:translateY(14px) scale(.96);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.exit-confirm.show .exit-confirm-card{transform:none}
+.exit-confirm-icon{width:64px;height:64px;margin:0 auto 15px;display:grid;place-items:center;border-radius:20px;background:linear-gradient(145deg,#111827,#1e293b);color:#f5c451;font-size:31px;font-weight:950;box-shadow:0 12px 28px rgba(15,23,42,.25)}
+.exit-confirm-card h2{margin:0 0 7px;color:#0f172a;font-size:22px}.exit-confirm-card p{margin:0;color:#475569;font-size:15px}.exit-confirm-card small{display:block;margin-top:7px;color:#94a3b8}
+.exit-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.exit-confirm-actions button{min-height:47px;border-radius:13px;font-weight:850;font-size:14px;cursor:pointer}.exit-confirm-actions .stay{border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a}.exit-confirm-actions .leave{border:1px solid #dc2626;background:#dc2626;color:#fff}
+body.exit-confirm-open{overflow:hidden}
+@media(max-width:420px){.exit-confirm-actions{grid-template-columns:1fr}.exit-confirm-actions .stay{order:1}.exit-confirm-actions .leave{order:2}}
