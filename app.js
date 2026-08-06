@@ -48,11 +48,16 @@ function load(){
 }
 function save(){
  const snapshot=structuredClone(db);
+ const notifySaved=()=>{
+  try{window.dispatchEvent(new CustomEvent('shirogane:data-saved',{detail:{snapshot:structuredClone(snapshot),savedAt:new Date().toISOString()}}))}catch{}
+ };
  if(window.ShiroganeStorage){
-  window.ShiroganeStorage.saveDB(snapshot).catch(err=>console.error('Gagal menyimpan data besar:',err));
+  window.ShiroganeStorage.saveDB(snapshot)
+   .then(notifySaved)
+   .catch(err=>console.error('Gagal menyimpan data besar:',err));
   return true;
  }
- try{localStorage.setItem('shirogane-db',JSON.stringify(snapshot));return true}
+ try{localStorage.setItem('shirogane-db',JSON.stringify(snapshot));notifySaved();return true}
  catch(err){console.error('Penyimpanan penuh:',err);toast?.('Penyimpanan penuh. Data gambar perlu dipindahkan.');return false}
 }
 function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
