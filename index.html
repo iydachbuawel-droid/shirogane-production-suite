@@ -7,7 +7,7 @@
   <title>SHIROGANE Production Suite</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="app-icon.png" />
-  <link rel="stylesheet" href="styles.css?v=1.7.9-mobile" />
+  <link rel="stylesheet" href="styles.css?v=2.2.0" />
 </head>
 <body>
   <div id="app">
@@ -57,28 +57,16 @@
   <div id="toast" class="toast"></div>
   <input type="file" id="restoreInput" accept="application/json" hidden />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="cloud-config.js?v=1.8.4"></script>
-  <script src="receipt-public.js?v=1.8.4"></script>
-  <script src="app.js?v=1.8.4"></script>
-  <script src="cloud-sync.js?v=1.8.4"></script>
-  <script src="receipt-tools.js?v=1.8.4"></script>
+  <script src="storage.js?v=2.2.0"></script>
+  <script src="cloud-config.js?v=2.2.0"></script>
+  <script src="receipt-public.js?v=2.2.0"></script>
+  <script src="app.js?v=2.2.0"></script>
+  <script src="cloud-sync.js?v=2.2.0"></script>
+  <script src="receipt-tools.js?v=2.2.0"></script>
 <script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', async () => {
-    try {
-      const registration = await navigator.serviceWorker.register('./sw.js?v=1.8.4', { updateViaCache: 'none' });
-      await registration.update();
-      let reloading = false;
-      navigator.serviceWorker.addEventListener('controllerchange', () => {
-        if (reloading) return;
-        reloading = true;
-        location.reload();
-      });
-    } catch (error) {
-      console.error('Service worker gagal:', error);
-    }
-  });
-}
+// Mode stabil: nonaktifkan Service Worker lama agar file terbaru selalu dimuat.
+if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(list=>list.forEach(r=>r.unregister()));
+if ('caches' in window) caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
 </script>
 </body>
 </html>

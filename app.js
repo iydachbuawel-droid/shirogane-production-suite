@@ -46,7 +46,15 @@ function load(){
   return merged;
  }catch{return structuredClone(defaults)}
 }
-function save(){localStorage.setItem('shirogane-db',JSON.stringify(db));}
+function save(){
+ const snapshot=structuredClone(db);
+ if(window.ShiroganeStorage){
+  window.ShiroganeStorage.saveDB(snapshot).catch(err=>console.error('Gagal menyimpan data besar:',err));
+  return true;
+ }
+ try{localStorage.setItem('shirogane-db',JSON.stringify(snapshot));return true}
+ catch(err){console.error('Penyimpanan penuh:',err);toast?.('Penyimpanan penuh. Data gambar perlu dipindahkan.');return false}
+}
 function toast(msg){const el=$('#toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2200)}
 function nextInvoice(){const d=today().replaceAll('-','');const prefix=db.settings.invoicePrefix||'SG';const count=db.orders.filter(o=>o.date===today()).length+1;return `${prefix}-${d}-${String(count).padStart(3,'0')}`}
 const SIZE_KEYS=['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
@@ -140,7 +148,27 @@ function renderOrderForm(){if(!draft)draft=blankDraft();const p=$('#page-new-ord
  bindForm();renderItems();renderThumbs();updatePreview();}
 function esc(s=''){return String(s).replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function bindForm(){['Invoice','Date','Due','Customer','Phone','Address','Prod','Discount','Deposit','Pay','Notes'].forEach(k=>{const el=$('#f'+k);const key={Invoice:'invoice',Date:'date',Due:'dueDate',Customer:'customer',Phone:'phone',Address:'address',Prod:'productionStatus',Discount:'discount',Deposit:'deposit',Pay:'paymentStatus',Notes:'notes'}[k];el.oninput=()=>{draft[key]=el.type==='number'?Number(el.value||0):el.value;updatePreview()}});$('#addItem').onclick=()=>{draft.items.push({id:uid(),productId:'',name:'',price:0,sizes:{XS:0,S:0,M:0,L:0,XL:0,'2XL':0,'3XL':0,'4XL':0,'5XL':0},extras:{...db.settings.sizeExtras}});renderItems();updatePreview()};$('#imageInput').onchange=async e=>{for(const f of e.target.files){if(f.size>2_500_000){toast('Gambar terlalu besar. Maksimal 2,5 MB per file.');continue}draft.images.push({id:uid(),name:f.name,data:await fileData(f)});}renderThumbs();updatePreview()}}
-function fileData(f){return new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(f)})}
+function fileData(f){
+ return new Promise(resolve=>{
+  const reader=new FileReader();
+  reader.onload=()=>{
+   const original=reader.result;
+   if(!String(f.type||'').startsWith('image/'))return resolve(original);
+   const img=new Image();
+   img.onload=()=>{
+    try{
+     const max=1400,scale=Math.min(1,max/Math.max(img.width,img.height));
+     const canvas=document.createElement('canvas');
+     canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+     canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+     resolve(canvas.toDataURL('image/jpeg',0.78));
+    }catch{resolve(original)}
+   };
+   img.onerror=()=>resolve(original);img.src=original;
+  };
+  reader.onerror=()=>resolve('');reader.readAsDataURL(f);
+ });
+}
 function renderItems(){const el=$('#items');if(!draft.items.length){el.innerHTML='<div class="empty">Belum ada barang.</div>';return}el.innerHTML=draft.items.map((it,i)=>{const calc=orderTotals({...draft,items:[it],discount:0,deposit:0});return `<div class="item-card"><div class="item-head"><strong>Barang ${i+1}</strong><span class="item-calc">${calc.qty} pcs × ${money(it.price)} = <b>${money(calc.subtotal)}</b></span><button class="btn small danger" onclick="removeItem(${i})">Hapus</button></div><div class="form-grid three"><div class="field"><label>Pilih Produk</label><select onchange="pickProduct(${i},this.value)"><option value="">-- Pilih daftar harga --</option>${db.products.map(p=>`<option value="${p.id}" ${it.productId===p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div><div class="field"><label>Nama Barang</label><input value="${esc(it.name)}" oninput="changeItem(${i},'name',this.value)"></div><div class="field"><label>Harga Dasar / pcs</label><input type="number" min="0" step="1000" value="${it.price||0}" oninput="changeItem(${i},'price',this.value)"></div></div><div class="sizes" style="margin-top:12px">${SIZE_KEYS.map(s=>`<div class="field"><label>${s}</label><input type="number" min="0" step="1" value="${it.sizes[s]||0}" oninput="changeSize(${i},'${s}',this.value)"></div>`).join('')}</div>${calc.extra>0?`<div class="calc-note">Tambahan ukuran barang ini: ${calc.extraBreakdown.map(x=>`${x.size}: ${x.qty} pcs × ${money(x.rate)} = ${money(x.amount)}`).join(' • ')}</div>`:''}</div>`}).join('')}
 window.pickProduct=(i,id)=>{const p=db.products.find(x=>x.id===id);if(!p)return;Object.assign(draft.items[i],{productId:id,name:p.name,price:p.price});renderItems();updatePreview()};window.changeItem=(i,k,v)=>{draft.items[i][k]=k==='price'?safeNumber(v):v;updatePreview()};window.changeSize=(i,s,v)=>{draft.items[i].sizes[s]=safeQty(v);updatePreview()};window.removeItem=i=>{draft.items.splice(i,1);renderItems();updatePreview()};window.removeImage=i=>{draft.images.splice(i,1);renderThumbs();updatePreview()};
 function renderThumbs(){$('#thumbs').innerHTML=draft.images.map((im,i)=>`<div class="thumb"><img src="${im.data}" alt=""><button onclick="removeImage(${i})">×</button></div>`).join('')}
@@ -220,9 +248,7 @@ function openMobilePrintPreview(o,type){
  const overlay=document.createElement('div');
  overlay.id='mobilePrintOverlay';
  overlay.className='mobile-print-overlay';
- overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button type="button" data-mobile-print="print">🖨 ${isThermal?'Print Thermal':'Print / PDF'}</button><button type="button" data-mobile-print="close">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
- overlay.querySelector('[data-mobile-print="print"]').addEventListener('click',printMobilePreview);
- overlay.querySelector('[data-mobile-print="close"]').addEventListener('click',closeMobilePrintPreview);
+ overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print / PDF'}</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
  document.body.appendChild(overlay);
 }
 window.printOrder=(id,type)=>{
@@ -338,7 +364,7 @@ db.settings.adminName=db.settings.adminName||'Admin';
 save();
 function logActivity(action,detail=''){
  db.activity.unshift({id:uid(),time:new Date().toISOString(),user:db.settings.adminName||'Admin',action,detail});
- db.activity=db.activity.slice(0,1000); save();
+ db.activity=db.activity.slice(0,500); try{save()}catch(err){console.warn('Aktivitas tidak tersimpan:',err)}
 }
 function fmtDateTime(iso){try{return new Date(iso).toLocaleString('id-ID')}catch{return iso}}
 function downloadJSON(data,name){const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
@@ -353,15 +379,14 @@ function nav(page){
 
 function renderAll(){renderDashboard();renderOrders();renderCustomers();renderProducts();renderReports();renderTrash();renderActivity();renderSettings();$('#brandNameSide').textContent=db.settings.business||'SHIROGANE';const mark=$('.brand-mark');if(mark)mark.innerHTML=db.settings.logo?`<img src="${db.settings.logo}" alt="Logo">`:esc((db.settings.business||'S').slice(0,1))}
 
-function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button type="button" class="btn small" data-order-action="open" data-id="${o.id}">Buka</button> <button type="button" class="btn small" data-order-action="duplicate" data-id="${o.id}">Duplikat</button> <button type="button" class="btn small" data-order-action="thermal" data-id="${o.id}">Thermal</button> <button type="button" class="btn small" data-order-action="print" data-id="${o.id}">Print</button> <button type="button" class="btn small danger" data-order-action="delete" data-id="${o.id}">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
-
+function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button class="btn small" onclick="editOrder('${o.id}')">Buka</button> <button class="btn small" onclick="duplicateOrder('${o.id}')">Duplikat</button> <button class="btn small" onclick="printOrder('${o.id}','thermal')">Thermal</button> <button class="btn small" onclick="printOrder('${o.id}','f4')">Print</button> <button class="btn small danger" onclick="moveToTrash('${o.id}')">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
 
 function renderOrders(){const p=$('#page-orders');p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><input id="orderSearch" placeholder="Cari nomor nota atau pelanggan..." style="min-width:280px;padding:10px 12px;border:1px solid var(--line);border-radius:12px"><select id="statusFilter" class="btn"><option value="">Semua status</option>${['Baru Masuk','Diproses','Sablon','Jahit','Siap Diambil','Selesai'].map(x=>`<option>${x}</option>`).join('')}</select><span class="spacer"></span><button id="bulkDeleteBtn" class="btn danger" onclick="bulkTrash()" disabled>Hapus Terpilih (0)</button><button class="btn primary" onclick="startNew()">＋ Pesanan Baru</button></div><div id="ordersList" style="margin-top:16px"></div></div>`;const refresh=()=>{const q=$('#orderSearch').value.toLowerCase(),s=$('#statusFilter').value;const arr=[...db.orders].sort((a,b)=>b.createdAt-a.createdAt).filter(o=>(!q||o.invoice.toLowerCase().includes(q)||(o.customer||'').toLowerCase().includes(q))&&(!s||o.productionStatus===s));$('#ordersList').innerHTML=arr.length?ordersTable(arr,true):'<div class="empty">Pesanan tidak ditemukan.</div>'};$('#orderSearch').oninput=refresh;$('#statusFilter').onchange=refresh;refresh()}
 window.toggleAllOrders=checked=>{$$('.order-check').forEach(x=>x.checked=checked);updateBulkCount()};
 window.updateBulkCount=()=>{const n=$$('.order-check:checked').length,b=$('#bulkDeleteBtn');if(b){b.disabled=!n;b.textContent=`Hapus Terpilih (${n})`}};
 window.moveToTrash=id=>{const o=db.orders.find(x=>x.id===id);if(!o)return;if(!confirm(`Pindahkan nota ${o.invoice} ke Sampah?`))return;o.deletedAt=new Date().toISOString();db.trash.unshift(o);db.orders=db.orders.filter(x=>x.id!==id);logActivity('Hapus ke Sampah',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota dipindahkan ke Sampah.')};
 window.bulkTrash=()=>{const ids=$$('.order-check:checked').map(x=>x.value);if(!ids.length||!confirm(`Pindahkan ${ids.length} nota ke Sampah?`))return;ids.forEach(id=>{const o=db.orders.find(x=>x.id===id);if(o){o.deletedAt=new Date().toISOString();db.trash.unshift(o)}});db.orders=db.orders.filter(o=>!ids.includes(o.id));logActivity('Hapus banyak ke Sampah',`${ids.length} nota`);renderAll();toast(`${ids.length} nota dipindahkan ke Sampah.`)};
-window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return toast('Nota tidak ditemukan.');const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`);save();renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
+window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return toast('Nota tidak ditemukan.');const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);try{save()}catch(err){console.warn(err)}try{logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`)}catch(err){console.warn(err)}renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
 
 function renderTrash(){const p=$('#page-trash');if(!p)return;const arr=[...db.trash].sort((a,b)=>String(b.deletedAt).localeCompare(String(a.deletedAt)));p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><h2>Sampah (${arr.length})</h2><span class="spacer"></span>${arr.length?'<button class="btn danger" onclick="emptyTrash()">Kosongkan Sampah</button>':''}</div>${arr.length?`<div class="table-wrap"><table><thead><tr><th>No. Nota</th><th>Pelanggan</th><th>Dihapus</th><th>Total</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>`<tr><td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${fmtDateTime(o.deletedAt)}</td><td>${money(orderTotals(o).total)}</td><td><button class="btn small" onclick="restoreOrder('${o.id}')">Pulihkan</button> <button class="btn small danger" onclick="permanentDelete('${o.id}')">Hapus Permanen</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sampah kosong. Nota yang dihapus akan tersimpan di sini.</div>'}</div>`}
 window.restoreOrder=id=>{const o=db.trash.find(x=>x.id===id);if(!o)return;delete o.deletedAt;if(db.orders.some(x=>x.invoice===o.invoice))o.invoice=nextInvoice();db.orders.push(o);db.trash=db.trash.filter(x=>x.id!==id);logActivity('Pulihkan Nota',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota berhasil dipulihkan.')};
@@ -374,7 +399,10 @@ function renderActivity(){const p=$('#page-activity');if(!p)return;p.innerHTML=`
 window.exportActivity=()=>downloadJSON(db.activity,`aktivitas-shirogane-${today()}.json`);
 window.clearActivity=()=>{if(confirm('Bersihkan seluruh riwayat aktivitas?')){db.activity=[];save();renderActivity();toast('Riwayat aktivitas dibersihkan.')}};
 
-// Logging is handled inside the real actions. Do not wrap undefined legacy functions.
+const originalSaveOrder=window.saveOrder;
+window.saveOrder=(print=false)=>{const wasEdit=!!editingOrder;const inv=draft?.invoice;originalSaveOrder(print);logActivity(wasEdit?'Edit Nota':'Buat Nota',inv||'');};
+const originalPrintOrder=window.printOrder;
+window.printOrder=(id,type)=>{const o=db.orders.find(x=>x.id===id);try{if(o)logActivity('Cetak Nota',`${o.invoice} • ${String(type).toUpperCase()}`)}catch(err){console.warn(err)}return originalPrintOrder(id,type)};
 
 function renderSettings(){
  const page=$('#page-settings');
@@ -393,27 +421,6 @@ window.repairSettings=()=>{const keep={logo:db.settings?.logo||'',customBankLogo
 window.saveAdminName=()=>{db.settings.adminName=($('#sAdminName').value||'Admin').trim();save();logActivity('Ubah Nama Pengguna',db.settings.adminName);renderAll();toast('Nama pengguna disimpan.')};
 window.exportOrdersCSV=()=>{const rows=[['Nomor Nota','Tanggal','Pelanggan','WhatsApp','Status','Total','Panjar','Sisa'],...db.orders.map(o=>{const t=orderTotals(o);return[o.invoice,o.date,o.customer||'',o.phone||'',o.productionStatus,t.total,o.deposit||0,t.balance]})];const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pesanan-shirogane-${today()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);logActivity('Export CSV',`${db.orders.length} pesanan`)};
 window.resetSelectedData=()=>{const keys=[];if($('#rOrders')?.checked)keys.push('orders');if($('#rTrash')?.checked)keys.push('trash');if($('#rProducts')?.checked)keys.push('products');if($('#rActivity')?.checked)keys.push('activity');if(!keys.length)return toast('Pilih data yang akan direset.');const typed=prompt(`Backup akan diunduh. Ketik RESET untuk menghapus: ${keys.join(', ')}`);if(typed!=='RESET')return;downloadJSON(db,`backup-sebelum-reset-${today()}.json`);if(keys.includes('orders'))db.orders=[];if(keys.includes('trash'))db.trash=[];if(keys.includes('products'))db.products=structuredClone(defaults.products);if(keys.includes('activity'))db.activity=[];logActivity('Reset Data',keys.join(', '));renderAll();toast('Data terpilih telah direset.')};
-
-
-// One reliable handler for all order action buttons on desktop and Android.
-document.addEventListener('click',event=>{
- const button=event.target.closest('[data-order-action]');
- if(!button)return;
- event.preventDefault();
- event.stopPropagation();
- const id=button.dataset.id;
- const action=button.dataset.orderAction;
- try{
-  if(action==='open')return window.editOrder(id);
-  if(action==='duplicate')return window.duplicateOrder(id);
-  if(action==='thermal')return window.printOrder(id,'thermal');
-  if(action==='print')return window.printOrder(id,'f4');
-  if(action==='delete')return window.moveToTrash(id);
- }catch(error){
-  console.error('Order action failed:',action,id,error);
-  toast('Tombol gagal: '+(error?.message||'kesalahan tidak diketahui'));
- }
-});
 
 if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});} if('caches' in window){caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).catch(()=>{});}
 renderAll();
@@ -453,4 +460,18 @@ renderAll();
   addEventListener('resize',schedule);
   document.fonts?.ready?.then(schedule);
   schedule();
+})();
+
+
+/* Hydrate complete database from IndexedDB after initial UI load. */
+(async()=>{
+ try{
+  if(!window.ShiroganeStorage)return;
+  await window.ShiroganeStorage.migrateLegacy(db);
+  const full=await window.ShiroganeStorage.loadDB();
+  if(full&&typeof full==='object'){
+   db=full;normalizeSettings();
+   try{renderAll()}catch(err){console.error('Gagal merender data IndexedDB:',err)}
+  }
+ }catch(err){console.error('Inisialisasi penyimpanan besar gagal:',err)}
 })();

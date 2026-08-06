@@ -1,29 +1,4 @@
-const CACHE = 'shirogane-pwa-v1.8.4';
-const APP_SHELL = [
-  './', './index.html', './styles.css?v=1.8.4', './app.js?v=1.8.4',
-  './cloud-config.js?v=1.8.4', './cloud-sync.js?v=1.8.4',
-  './receipt-public.js?v=1.8.4', './receipt-tools.js?v=1.8.4',
-  './public-version.json', './receipt.html', './manifest.webmanifest', './app-icon.png'
-];
-
-self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
-});
-
-self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
-});
-
-self.addEventListener('fetch', event => {
-  if (event.request.method !== 'GET') return;
-  const url = new URL(event.request.url);
-  if (url.origin !== self.location.origin) return;
-  event.respondWith(
-    fetch(event.request, { cache: 'no-store' })
-      .then(response => {
-        if (response.ok) caches.open(CACHE).then(cache => cache.put(event.request, response.clone()));
-        return response;
-      })
-      .catch(async () => (await caches.match(event.request)) || (await caches.match('./index.html')))
-  );
-});
+const CACHE='shirogane-disabled-v2.2.0';
+self.addEventListener('install',e=>self.skipWaiting());
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{ if(e.request.method==='GET') e.respondWith(fetch(e.request)); });

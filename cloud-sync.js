@@ -287,7 +287,7 @@
       if (!force && localHasData(db)) return 'Data lokal tidak ditimpa otomatis.';
       db = data.state;
       if (typeof normalizeSettings === 'function') normalizeSettings();
-      localStorage.setItem('shirogane-db', JSON.stringify(db));
+      if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
       writeMeta({ updatedAt: data.updated_at, userId: session.user.id });
       if (typeof renderAll === 'function') renderAll();
       setStatus('Tersinkron', 'online');
@@ -345,7 +345,7 @@
         } catch {}
         db = cloudRow.state;
         if (typeof normalizeSettings === 'function') normalizeSettings();
-        localStorage.setItem('shirogane-db', JSON.stringify(db));
+        if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
         writeMeta({ updatedAt: cloudRow.updated_at, userId: session.user.id });
         if (typeof renderAll === 'function') renderAll();
         closeModal(); setStatus('Tersinkron', 'online'); resolve('Data cloud dipakai.');
