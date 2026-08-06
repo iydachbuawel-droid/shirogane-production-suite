@@ -1,14 +1,15 @@
-SHIROGANE MASTER v1.8.1
+SHIROGANE v1.8.4 CLEAN FIX
 
-1. Buka repository GitHub shirogane-production-suite.
-2. Klik Add file > Upload files.
-3. Upload SEMUA ISI folder ini ke root repository.
-4. Pastikan file lama diganti, lalu Commit changes.
-5. Tunggu Actions/Pages selesai (tanda hijau).
-6. Buka: https://iydachbuawel-droid.github.io/shirogane-production-suite/?v=180
-7. Jika aplikasi lama masih terbuka, tutup total lalu buka link di atas sekali. Service worker v1.8.1 akan membersihkan cache lama.
+1. Ekstrak ZIP ini.
+2. Upload SEMUA ISI folder ke root repository GitHub.
+3. Pastikan app.js, index.html, styles.css, sw.js terlihat langsung di root.
+4. Commit changes.
+5. Tunggu Actions/Pages hijau.
+6. Tes dari Chrome dengan URL:
+   https://iydachbuawel-droid.github.io/shirogane-production-suite/?v=184
 
-SUPABASE:
-Authentication > URL Configuration
-Site URL dan Redirect URLs harus berisi:
-https://iydachbuawel-droid.github.io/shirogane-production-suite/
+Perbaikan:
+- Menghapus wrapper fungsi rusak yang memanggil saveOrder yang tidak ada.
+- Tombol Buka, Duplikat, Thermal, Print, Hapus memakai satu event handler yang stabil.
+- Preview Print/Thermal Android memakai overlay di halaman yang sama.
+- Tombol Cetak dan Tutup preview memakai addEventListener, bukan onclick string.
