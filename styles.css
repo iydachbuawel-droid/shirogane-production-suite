@@ -540,3 +540,122 @@ table{max-width:100%}
   .preview .summary-row.balance>span:first-child{font-size:15px!important}
   .preview .summary-row.balance>span:last-child{font-size:30px!important}
 }
+
+/* =========================================================
+   SHIROGANE ANDROID v1.7.8 — MOBILE LAYOUT FINAL OVERRIDES
+   Diletakkan paling akhir agar tidak ditimpa aturan desktop/tablet.
+   ========================================================= */
+@media (max-width: 720px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  #app { width:100%; min-height:100vh; overflow-x:hidden; }
+
+  .sidebar {
+    position:fixed!important;
+    inset:0 auto 0 0!important;
+    width:min(86vw,290px)!important;
+    max-width:290px!important;
+    padding:18px 14px!important;
+    transform:translateX(-105%)!important;
+    transition:transform .22s ease!important;
+    box-shadow:12px 0 32px rgba(15,23,42,.25)!important;
+    z-index:10001!important;
+  }
+  .sidebar.open { transform:translateX(0)!important; }
+
+  main {
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+  }
+
+  .topbar {
+    width:100%!important;
+    min-height:72px!important;
+    height:auto!important;
+    padding:10px 14px!important;
+    gap:12px!important;
+    align-items:center!important;
+  }
+  .topbar > div { min-width:0!important; flex:1!important; }
+  .topbar h1 { font-size:24px!important; line-height:1.05!important; }
+  .topbar p { font-size:12px!important; line-height:1.25!important; white-space:normal!important; }
+  .icon-btn {
+    display:grid!important;
+    place-items:center!important;
+    flex:0 0 44px!important;
+    width:44px!important;
+    height:44px!important;
+    border-radius:12px!important;
+    background:#f1f5f9!important;
+    font-size:25px!important;
+    cursor:pointer!important;
+  }
+  .topbar .btn { display:none!important; }
+
+  .page {
+    width:100%!important;
+    max-width:100%!important;
+    padding:14px!important;
+    overflow-x:hidden!important;
+  }
+  .grid.cards,
+  .form-grid,
+  .form-grid.three,
+  .split { grid-template-columns:minmax(0,1fr)!important; }
+  .grid.cards { gap:12px!important; }
+  .card { width:100%!important; padding:17px!important; border-radius:18px!important; }
+  .card .value { font-size:26px!important; overflow-wrap:normal!important; word-break:normal!important; }
+  .panel { width:100%!important; padding:15px!important; margin-top:14px!important; border-radius:18px!important; }
+  .panel h2 { font-size:20px!important; }
+
+  .toolbar { width:100%!important; align-items:stretch!important; }
+  .toolbar .spacer { display:none!important; }
+  .toolbar .btn { width:100%!important; min-height:48px!important; }
+
+  .field input,.field select,.field textarea {
+    min-height:48px!important;
+    font-size:16px!important;
+  }
+  .sizes { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
+  .item-head { flex-wrap:wrap!important; }
+  .item-calc { width:100%!important; margin:0!important; }
+
+  .table-wrap { width:100%!important; max-width:100%!important; overflow-x:auto!important; -webkit-overflow-scrolling:touch; }
+  #page-dashboard .table-wrap table { min-width:650px!important; }
+
+  .sticky { position:static!important; top:auto!important; }
+  .preview { width:100%!important; max-width:100%!important; padding:13px!important; overflow:hidden!important; }
+  .preview .receipt-meta { grid-template-columns:1fr!important; }
+  .preview .summary-row { gap:10px!important; }
+  .preview .payment-bank { grid-template-columns:74px minmax(0,1fr)!important; }
+  .preview .bank-logo-img { width:72px!important; height:30px!important; }
+  .preview .payment-bank strong { font-size:clamp(11px,3.25vw,14px)!important; letter-spacing:0!important; overflow-wrap:anywhere!important; }
+
+  .thumbs { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  .toast { left:14px!important; right:14px!important; bottom:76px!important; text-align:center!important; }
+
+  /* Tombol cloud tidak menutupi tombol/form di bawah. */
+  .sg-cloud-fab {
+    right:12px!important;
+    bottom:12px!important;
+    max-width:calc(100vw - 24px)!important;
+    padding:10px 13px!important;
+    font-size:12px!important;
+    white-space:nowrap!important;
+    z-index:9998!important;
+  }
+
+  .sg-cloud-modal { padding:12px!important; }
+  .sg-cloud-card { padding:18px!important; border-radius:17px!important; }
+}
+
+@media (max-width: 390px) {
+  .page { padding:11px!important; }
+  .topbar { padding-left:10px!important; padding-right:10px!important; }
+  .topbar h1 { font-size:22px!important; }
+  .card .value { font-size:23px!important; }
+  .sizes { grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:6px!important; }
+}
