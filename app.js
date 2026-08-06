@@ -241,6 +241,12 @@ window.printMobilePreview=()=>{
  document.body.classList.add('mobile-printing');
  setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
 };
+window.downloadMobilePdf=()=>{
+ const note=document.getElementById('mobilePdfHint');
+ if(note)note.textContent='Pada dialog berikutnya pilih “Simpan sebagai PDF”.';
+ document.body.classList.add('mobile-printing');
+ setTimeout(()=>{window.print();setTimeout(()=>{document.body.classList.remove('mobile-printing');if(note)note.textContent='';},900)},80);
+};
 function openMobilePrintPreview(o,type){
  ensureMobilePrintStyles();
  closeMobilePrintPreview();
@@ -248,7 +254,7 @@ function openMobilePrintPreview(o,type){
  const overlay=document.createElement('div');
  overlay.id='mobilePrintOverlay';
  overlay.className='mobile-print-overlay';
- overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print / PDF'}</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
+ overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print'}</button><button class="pdf-button" onclick="downloadMobilePdf()">📄 Download PDF</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button><span id="mobilePdfHint" style="display:none"></span></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
  document.body.appendChild(overlay);
 }
 window.printOrder=(id,type)=>{
