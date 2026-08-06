@@ -3,6 +3,7 @@
 
   const TABLE = 'shirogane_app_state';
   const META_KEY = 'shirogane-cloud-meta';
+  const AUTH_VERSION = '1.8.0';
   const cfg = window.SHIROGANE_CLOUD_CONFIG || {};
   let client = null;
   let session = null;
@@ -23,10 +24,10 @@
       .sg-cloud-fab{position:fixed;right:18px;bottom:18px;z-index:9998;border:0;border-radius:999px;padding:11px 16px;background:#111827;color:#fff;box-shadow:0 8px 28px rgba(0,0,0,.22);font:600 13px system-ui;cursor:pointer}
       .sg-cloud-fab.online{background:#166534}.sg-cloud-fab.busy{background:#92400e}
       .sg-cloud-modal{position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:20px}
-      .sg-cloud-card{width:min(440px,100%);background:#fff;border-radius:20px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.35);font-family:system-ui;color:#111827}
+      .sg-cloud-card{width:min(440px,100%);max-height:calc(100vh - 32px);overflow:auto;background:#fff;border-radius:20px;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.35);font-family:system-ui;color:#111827}
       .sg-cloud-card h2{margin:0 0 6px}.sg-cloud-card p{color:#64748b;line-height:1.5}.sg-cloud-card input{box-sizing:border-box;width:100%;padding:12px 14px;margin:7px 0;border:1px solid #cbd5e1;border-radius:12px;font-size:15px}
       .sg-cloud-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.sg-cloud-actions button{border:0;border-radius:11px;padding:10px 14px;cursor:pointer;font-weight:700}.sg-cloud-primary{background:#111827;color:#fff}.sg-cloud-secondary{background:#e2e8f0;color:#111827}.sg-cloud-danger{background:#b91c1c;color:#fff}
-      .sg-cloud-msg{min-height:20px;margin-top:10px;font-size:13px;color:#b91c1c}.sg-cloud-status{font-size:12px;color:#64748b;margin-top:8px}.sg-cloud-link{border:0;background:transparent;color:#2563eb;padding:8px 0;cursor:pointer;font-weight:700;text-decoration:underline}.sg-cloud-password-row{position:relative}.sg-cloud-password-row input{padding-right:52px}.sg-cloud-eye{position:absolute;right:8px;top:14px;border:0;background:transparent;cursor:pointer;font-size:18px;padding:6px}
+      .sg-cloud-msg{min-height:20px;margin-top:10px;font-size:13px;color:#b91c1c}.sg-cloud-status{font-size:12px;color:#64748b;margin-top:8px}.sg-cloud-link{display:inline-flex;border:0;background:transparent;color:#1d4ed8;padding:12px 2px 2px;cursor:pointer;font-weight:800;text-decoration:underline;font-size:14px}.sg-cloud-password-row{position:relative}.sg-cloud-password-row input{padding-right:52px}.sg-cloud-eye{position:absolute;right:8px;top:14px;border:0;background:transparent;cursor:pointer;font-size:18px;padding:6px}
     `;
     document.head.appendChild(style);
   }
@@ -124,7 +125,22 @@
   }
 
   function appBaseUrl() {
-    return `${window.location.origin}${window.location.pathname}`.replace(/[^/]+$/, '');
+    const url = new URL(window.location.href);
+    url.hash = '';
+    url.search = '';
+    if (!url.pathname.endsWith('/')) url.pathname = url.pathname.replace(/[^/]+$/, '');
+    return url.toString();
+  }
+
+  function hasRecoveryParameters() {
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const query = new URLSearchParams(window.location.search);
+    return hash.get('type') === 'recovery' || query.get('type') === 'recovery' ||
+      hash.has('access_token') || query.has('code');
+  }
+
+  function cleanRecoveryUrl() {
+    cleanRecoveryUrl();
   }
 
   function friendlyAuthError(error) {
@@ -204,7 +220,7 @@
       msg.textContent = 'Password berhasil diubah. Silakan masuk memakai password baru.';
       setTimeout(async () => {
         await client.auth.signOut();
-        history.replaceState({}, document.title, appBaseUrl());
+        cleanRecoveryUrl();
         openLoginModal();
       }, 1200);
     };
@@ -364,6 +380,7 @@
       setStatus('Library cloud gagal');
       return;
     }
+    const recoveryRequested = hasRecoveryParameters();
     client = window.supabase.createClient(cfg.url, cfg.anonKey, {
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
     });
@@ -385,7 +402,14 @@
         await smartSync(false);
       } else setStatus('Login Cloud');
     });
-    if (session) await smartSync(false); else setStatus('Login Cloud');
+    if (recoveryRequested && session) {
+      setStatus('Ganti Password', 'busy');
+      setTimeout(openNewPasswordModal, 80);
+    } else if (session) {
+      await smartSync(false);
+    } else {
+      setStatus('Login Cloud');
+    }
   }
 
   addStyles();

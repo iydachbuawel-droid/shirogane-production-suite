@@ -1,5 +1,29 @@
-const CACHE='shirogane-android-v1.7.7';
-const APP=['./','./index.html','./styles.css?v=1.7.9-mobile','./app.js?v=1.7.9-mobile','./cloud-config.js?v=1.2.5','./cloud-sync.js?v=1.2.5','./receipt-public.js?v=1.7.9-mobile','./receipt-tools.js?v=1.7.9-mobile','./public-version.json','./receipt.html','./cloud-config.js','./manifest.webmanifest','./app-icon.png'];
-self.addEventListener('install',event=>event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(APP)).then(()=>self.skipWaiting())));
-self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',event=>{const url=new URL(event.request.url);if(event.request.method!=='GET'||url.origin!==location.origin)return;event.respondWith(fetch(event.request).then(response=>{const copy=response.clone();caches.open(CACHE).then(cache=>cache.put(event.request,copy));return response}).catch(()=>caches.match(event.request).then(response=>response||caches.match('./index.html'))));});
+const CACHE = 'shirogane-pwa-v1.8.0';
+const APP_SHELL = [
+  './', './index.html', './styles.css?v=1.8.0', './app.js?v=1.8.0',
+  './cloud-config.js?v=1.8.0', './cloud-sync.js?v=1.8.0',
+  './receipt-public.js?v=1.8.0', './receipt-tools.js?v=1.8.0',
+  './public-version.json', './receipt.html', './manifest.webmanifest', './app-icon.png'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_SHELL)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim()));
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  const url = new URL(event.request.url);
+  if (url.origin !== self.location.origin) return;
+  event.respondWith(
+    fetch(event.request, { cache: 'no-store' })
+      .then(response => {
+        if (response.ok) caches.open(CACHE).then(cache => cache.put(event.request, response.clone()));
+        return response;
+      })
+      .catch(async () => (await caches.match(event.request)) || (await caches.match('./index.html')))
+  );
+});
