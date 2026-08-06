@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>SHIROGANE Production Suite</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="app-icon.png" />
+  <link rel="stylesheet" href="styles.css?v=1.6.0" />
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div><strong id="brandNameSide">SHIROGANE</strong><small>Production Suite</small></div>
+      </div>
+      <nav id="nav">
+        <button data-page="dashboard" class="active">⌂ Dashboard</button>
+        <button data-page="new-order">＋ Buat Pesanan</button>
+        <button data-page="orders">▤ Daftar Pesanan</button>
+        <button data-page="customers">♙ Pelanggan</button>
+        <button data-page="products">▦ Daftar Harga</button>
+        <button data-page="reports">▥ Laporan</button>
+        <button data-page="trash">🗑 Sampah</button>
+        <button data-page="activity">◷ Aktivitas</button>
+        <button data-page="settings">⚙ Pengaturan</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="storage-status"><span class="status-dot"></span> Offline • Data tersimpan di perangkat</div>
+        <div class="license-branding">
+          <strong>By SHIROGANE®</strong>
+          <span>Production Suite v1.4.4</span>
+          <small>© 2026 All Rights Reserved</small>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <button id="mobileMenu" class="icon-btn">☰</button>
+        <div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Ringkasan operasional SHIROGANE</p></div>
+        <button class="btn primary" id="quickAdd">＋ Pesanan Baru</button>
+      </header>
+      <section id="page-dashboard" class="page active"></section>
+      <section id="page-new-order" class="page"></section>
+      <section id="page-orders" class="page"></section>
+      <section id="page-customers" class="page"></section>
+      <section id="page-products" class="page"></section>
+      <section id="page-reports" class="page"></section>
+      <section id="page-trash" class="page"></section>
+      <section id="page-activity" class="page"></section>
+      <section id="page-settings" class="page"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <input type="file" id="restoreInput" accept="application/json" hidden />
+<script>localStorage.setItem('shirogane-db',JSON.stringify({"settings": {"business": "SHIROGANE", "subtitle": "Konveksi & Sablon", "address": "Ulugalung, Sulawesi Selatan", "phone": "082393660355", "bank": "BRI", "account": "019501027833508", "accountName": "YUSPRAMULI", "sizeExtras": {"S": 0, "M": 0, "L": 0, "XL": 0, "2XL": 10000, "3XL": 10000, "4XL": 15000}}, "products": [], "orders": [{"id": "test1", "invoice": "SG-TEST-001", "date": "2026-08-04", "dueDate": "2026-08-04", "customer": "BRILIAN BIZ", "phone": "0852", "address": "", "notes": "Tes rincian biaya", "productionStatus": "Baru Masuk", "paymentStatus": "Belum Bayar", "discount": 0, "deposit": 0, "images": [], "items": [{"id": "i1", "name": "Panjang Hitam 24s + Sablon", "price": 100000, "sizes": {"S": 0, "M": 0, "L": 0, "XL": 3, "2XL": 3, "3XL": 0, "4XL": 0}, "extras": {}}]}], "trash": [], "activity": []}));</script>
+  <script src="app.js"></script>
+  <script>document.body.innerHTML=`<div class="print-area f4-print">${receiptHTML(db.orders[0])}</div>`;</script>
+</body>
+</html>

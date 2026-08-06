@@ -1,0 +1,15 @@
+SHIROGANE ANDROID/PWA v1.7.7
+
+UPLOAD SEMUA ISI FOLDER INI KE ROOT REPOSITORY GITHUB.
+Jangan upload folder pembungkusnya; index.html harus terlihat langsung di halaman utama repository.
+
+Setelah upload:
+1. Buka Settings > Pages.
+2. Source: Deploy from a branch.
+3. Branch: main, folder: / (root).
+4. Save.
+5. Tunggu 1-3 menit.
+6. Buka alamat GitHub Pages lalu di Chrome Android pilih Tambahkan ke layar utama / Instal aplikasi.
+
+PDF Android:
+Di preview nota tekan Simpan PDF, lalu pilih “Simpan sebagai PDF” pada dialog cetak Android. Hasil memakai preview nota yang sama.

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Nota SHIROGANE</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;background:#eef2f7;color:#0f172a;font-family:Arial,sans-serif}.page{width:min(980px,calc(100% - 24px));margin:24px auto;background:#fff;border-radius:18px;box-shadow:0 18px 60px rgba(15,23,42,.15);padding:34px}.loading,.error{text-align:center;padding:70px 20px;color:#64748b}.error h2{color:#b91c1c}.head{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border-bottom:3px solid #111827;padding-bottom:18px}.brandline{display:flex;gap:16px;align-items:center}.logo{width:80px;height:80px;object-fit:contain}.brand h1{margin:0;font-size:30px;letter-spacing:1px}.brand p{margin:4px 0;color:#64748b}.badge{background:#111827;color:#fff;border-radius:999px;padding:8px 13px;font-weight:700}.meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:22px 0}.meta>div{padding:12px;border:1px solid #e2e8f0;border-radius:12px}.meta small{color:#64748b}.tablebox{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}th,td{border-bottom:1px solid #e2e8f0;padding:10px 7px;text-align:center}th:first-child,td:first-child{text-align:left}th{background:#f8fafc;color:#475569}.totals{width:min(420px,100%);margin:22px 0 0 auto}.row{display:flex;justify-content:space-between;padding:9px 0}.row.extra-detail{font-size:13px;color:#334155;padding:6px 0}.extra-title{font-size:12px;font-weight:800;color:#334155;text-transform:uppercase;letter-spacing:.04em;margin-top:10px}.row.extra-total{font-weight:800;border-top:1px dashed #cbd5e1}.row.total{font-size:20px;font-weight:800;border-top:2px solid #cbd5e1;margin-top:5px;padding-top:14px}.row.balance{background:#111827;color:#fff;padding:16px;border-radius:12px;font-size:24px;font-weight:900}.payment{margin-top:20px;border:1px solid #e2e8f0;border-radius:14px;padding:16px}.payment strong,.payment span{display:block}.designs{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:18px}.design{height:270px;border:1px solid #e2e8f0;border-radius:14px;padding:8px;background:#fff}.design img{width:100%;height:100%;object-fit:contain}.actions{display:flex;gap:10px;justify-content:center;margin-top:25px}.actions button{border:0;border-radius:10px;padding:11px 17px;background:#111827;color:#fff;font-weight:700;cursor:pointer}.foot{text-align:center;margin-top:22px;color:#64748b}@media(max-width:720px){.page{margin:0;width:100%;border-radius:0;padding:18px}.head{display:block}.badge{display:inline-block;margin-top:12px}.meta{grid-template-columns:repeat(2,minmax(0,1fr))}table{font-size:11px}th,td{padding:8px 4px}}@media print{body{background:#fff}.page{width:100%;margin:0;box-shadow:none;border-radius:0;padding:0}.actions{display:none}}
+  </style>
+</head>
+<body>
+  <main id="root" class="page"><div class="loading">Memuat nota...</div></main>
+  <script src="cloud-config.js"></script>
+  <script>
+  (()=>{
+    const root=document.getElementById('root');
+    const esc=(v='')=>String(v).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID');
+    const sizes=['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
+    async function load(){
+      try{
+        const token=new URLSearchParams(location.search).get('t');
+        if(!token)throw new Error('Link nota tidak lengkap.');
+        const cfg=window.SHIROGANE_CLOUD_CONFIG||{};
+        if(!cfg.url||!cfg.anonKey)throw new Error('Konfigurasi cloud tidak tersedia.');
+        const url=`${cfg.url}/rest/v1/shirogane_public_receipts?token=eq.${encodeURIComponent(token)}&select=payload&limit=1`;
+        const res=await fetch(url,{headers:{apikey:cfg.anonKey,Authorization:`Bearer ${cfg.anonKey}`}});
+        if(!res.ok)throw new Error(`Nota tidak dapat dimuat (${res.status}).`);
+        const rows=await res.json();
+        if(!rows.length)throw new Error('Nota tidak ditemukan atau link sudah tidak berlaku.');
+        render(rows[0].payload);
+      }catch(err){root.innerHTML=`<div class="error"><h2>Nota tidak dapat dibuka</h2><p>${esc(err.message||err)}</p></div>`}
+    }
+    function extraDetails(o){
+      const map={};
+      for(const it of (o.items||[])){
+        const itemSizes=it.sizes||{},rates=it.extras||{};
+        for(const size of sizes){
+          const qty=Number(itemSizes[size]||0),rate=Number(rates[size]||0),amount=qty*rate;
+          if(amount<=0)continue;
+          if(!map[size])map[size]={size,qty:0,rate,amount:0};
+          map[size].qty+=qty;map[size].amount+=amount;if(!map[size].rate)map[size].rate=rate;
+        }
+      }
+      return sizes.filter(size=>map[size]).map(size=>map[size]);
+    }
+    function render(data){
+      const b=data.business||{},o=data.order||{},t=data.totals||{};
+      root.innerHTML=`<div class="head"><div class="brandline">${b.logo?`<img class="logo" src="${b.logo}" alt="Logo">`:''}<div class="brand"><h1>${esc(b.name||'SHIROGANE')}</h1><p>${esc(b.subtitle||'Production Suite')}</p><p>${esc(b.address||'')} ${b.phone?'• '+esc(b.phone):''}</p></div></div><span class="badge">${esc(o.productionStatus||'Pesanan')}</span></div><div class="meta"><div><small>No. Nota</small><br><b>${esc(o.invoice)}</b></div><div><small>Tanggal</small><br><b>${esc(o.date)}</b></div><div><small>Pelanggan</small><br><b>${esc(o.customer)}</b></div><div><small>Estimasi Selesai</small><br><b>${esc(o.dueDate)}</b></div></div><div class="tablebox"><table><thead><tr><th>Barang</th>${sizes.map(s=>`<th>${s}</th>`).join('')}<th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead><tbody>${(o.items||[]).map(it=>{const qty=sizes.reduce((a,s)=>a+(Number((it.sizes||{})[s])||0),0);return `<tr><td><b>${esc(it.name)}</b></td>${sizes.map(s=>`<td>${Number((it.sizes||{})[s])||''}</td>`).join('')}<td>${qty}</td><td>${money(it.price)}</td><td>${money(qty*(+it.price||0))}</td></tr>`}).join('')}</tbody></table></div><div class="totals"><div class="row"><span>Subtotal barang (${Number(t.qty||0)} pcs)</span><b>${money(t.subtotal)}</b></div>${(()=>{const d=extraDetails(o);return d.length?`<div class="extra-title">Rincian tambahan ukuran</div>`+d.map(x=>`<div class="row extra-detail"><span>Ukuran ${esc(x.size)}: ${Number(x.qty||0)} pcs × ${money(x.rate)}</span><b>${money(x.amount)}</b></div>`).join('')+`<div class="row extra-detail extra-total"><span>Total tambahan ukuran</span><b>${money(t.extra)}</b></div>`:`<div class="row extra-detail"><span>Tambahan ukuran</span><b>${money(0)}</b></div>`})()}<div class="row"><span>Diskon</span><b>-${money(t.discount)}</b></div><div class="row total"><span>Total Tagihan</span><span>${money(t.total)}</span></div><div class="row"><span>Panjar</span><b>${money(t.deposit)}</b></div><div class="row balance"><span>Sisa Pembayaran</span><span>${money(t.balance)}</span></div></div>${b.account?`<div class="payment"><small>Transfer ke ${esc(b.bank||'Bank')}</small><strong>${esc(b.account)}</strong><span>a.n. ${esc(b.accountName||'-')}</span></div>`:''}${o.notes?`<p><b>Catatan:</b> ${esc(o.notes)}</p>`:''}${o.images?.length?`<div class="designs">${o.images.slice(0,3).map(im=>`<div class="design"><img src="${im.data}" alt="Desain"></div>`).join('')}</div>`:''}<div class="actions"><button onclick="window.print()">Cetak / Simpan PDF</button><button id="shareButton">Bagikan</button></div><div class="foot">Terima kasih telah mempercayakan pesanan kepada ${esc(b.name||'SHIROGANE')}.</div>`;
+      document.getElementById('shareButton').onclick=async()=>{try{if(navigator.share)await navigator.share({title:`Nota ${o.invoice}`,text:`Nota ${o.invoice} - ${b.name||'SHIROGANE'}`,url:location.href});else{await navigator.clipboard.writeText(location.href);alert('Link nota disalin.')}}catch(e){if(e?.name!=='AbortError')alert('Tidak dapat membagikan link.')}};
+    }
+    load();
+  })();
+  </script>
+</body>
+</html>

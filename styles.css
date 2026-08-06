@@ -1,0 +1,542 @@
+:root{--bg:#f4f6f8;--panel:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--dark:#111827;--gold:#d4a84b;--danger:#b91c1c;--success:#15803d;--warning:#b45309;--radius:18px;--shadow:0 10px 30px rgba(17,24,39,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}.sidebar{position:fixed;inset:0 auto 0 0;width:250px;background:#0b1220;color:#fff;padding:22px 16px;display:flex;flex-direction:column;z-index:20}.brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px}.brand-mark{width:42px;height:42px;border:1px solid #d4a84b;border-radius:13px;display:grid;place-items:center;color:#d4a84b;font-weight:800;font-size:22px}.brand small{display:block;color:#94a3b8;margin-top:2px}.sidebar nav{display:grid;gap:7px}.sidebar nav button{border:0;background:transparent;color:#cbd5e1;text-align:left;padding:12px 14px;border-radius:12px;cursor:pointer}.sidebar nav button:hover,.sidebar nav button.active{background:#1f2937;color:#fff}.sidebar-footer{margin-top:auto;color:#64748b;font-size:12px;padding:8px}main{margin-left:250px;min-height:100vh}.topbar{height:92px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 28px;position:sticky;top:0;z-index:10}.topbar h1{font-size:24px;margin:0}.topbar p{margin:4px 0 0;color:var(--muted);font-size:13px}.topbar .btn{margin-left:auto}.icon-btn{display:none;border:0;background:transparent;font-size:24px}.page{display:none;padding:28px}.page.active{display:block}.grid{display:grid;gap:18px}.grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.card{padding:20px}.card .label{color:var(--muted);font-size:13px}.card .value{font-weight:800;font-size:28px;margin-top:8px}.card .hint{font-size:12px;color:var(--muted);margin-top:8px}.panel{padding:22px;margin-top:18px}.panel h2{font-size:18px;margin:0 0 18px}.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:650}.btn:hover{transform:translateY(-1px)}.btn.primary{background:var(--dark);color:#fff;border-color:var(--dark)}.btn.gold{background:var(--gold);color:#111;border-color:var(--gold)}.btn.danger{background:#fff1f2;color:var(--danger);border-color:#fecdd3}.btn.small{padding:7px 10px;font-size:12px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar .spacer{flex:1}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.field{display:grid;gap:7px}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:#fff}.field textarea{min-height:86px;resize:vertical}.split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:18px}.sticky{position:sticky;top:112px;align-self:start}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border-bottom:0}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700;background:#eef2ff}.badge.success{background:#dcfce7;color:#166534}.badge.warning{background:#fef3c7;color:#92400e}.badge.danger{background:#fee2e2;color:#991b1b}.badge.info{background:#dbeafe;color:#1d4ed8}.item-card{border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:12px;background:#fafafa}.item-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{flex:1}.sizes{display:grid;grid-template-columns:repeat(7,minmax(55px,1fr));gap:8px}.sizes .field input{text-align:center;padding:9px 5px}.summary{display:grid;gap:10px}.summary-row{display:flex;justify-content:space-between;gap:20px}.summary-row.total{border-top:1px dashed var(--line);padding-top:12px;font-weight:800;font-size:18px}.summary-row.balance{background:#111827;color:#fff;border-radius:12px;padding:13px;font-weight:800}.empty{text-align:center;padding:42px;color:var(--muted)}.preview{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff}.preview .receipt-head{text-align:center;border-bottom:2px solid #111;padding-bottom:12px}.preview h3{margin:0;font-size:20px}.preview p{margin:3px 0;font-size:11px}.preview table{min-width:0}.preview th,.preview td{font-size:10px;padding:5px}.preview .receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0;font-size:10px}.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.thumb{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f1f5f9}.thumb img{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff}.thumb button{position:absolute;right:5px;top:5px;border:0;border-radius:99px;background:rgba(0,0,0,.65);color:white;width:25px;height:25px}.upload-box{border:2px dashed #cbd5e1;border-radius:14px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(12px);transition:.2s;z-index:100;pointer-events:none}.toast.show{opacity:1;transform:none}.chart-bars{display:flex;align-items:end;gap:8px;height:220px;padding:10px 0}.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}.bar{width:100%;max-width:42px;background:#111827;border-radius:8px 8px 2px 2px;min-height:4px}.bar-label{font-size:10px;color:var(--muted)}.bar-value{font-size:9px;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);max-height:70px;overflow:hidden}.danger-zone{border-color:#fecaca;background:#fff7f7}
+@media(max-width:1000px){.grid.cards{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}.sticky{position:static}.form-grid.three{grid-template-columns:1fr 1fr}.sizes{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:720px){.sidebar{transform:translateX(-100%);transition:.2s;width:270px}.sidebar.open{transform:none}main{margin-left:0}.icon-btn{display:block}.topbar{height:78px;padding:0 16px}.topbar .btn{display:none}.page{padding:16px}.grid.cards,.form-grid,.form-grid.three{grid-template-columns:1fr}.panel{padding:16px}.sizes{grid-template-columns:repeat(3,1fr)}.thumbs{grid-template-columns:repeat(2,1fr)}}
+@media print{body{background:#fff}.sidebar,.topbar,.no-print{display:none!important}main{margin:0}.page{display:none!important;padding:0}.print-area{display:block!important}.preview{border:0;box-shadow:none;border-radius:0}.thermal-print{width:80mm;margin:0 auto}.f4-print{width:165mm;min-height:210mm;margin:0 auto;padding:8mm}.f4-print .preview{font-size:12px}}
+.brand-mark{overflow:hidden}.brand-mark img{width:100%;height:100%;object-fit:contain;padding:4px}.receipt-head.branded{display:flex;align-items:center;justify-content:center;gap:12px;text-align:left}.receipt-head.branded>div:last-child{text-align:center}.business-logo,.business-logo-placeholder{width:64px;height:64px;object-fit:contain;flex:0 0 auto}.business-logo-placeholder{display:grid;place-items:center;border:2px solid #111;border-radius:14px;font-size:30px;font-weight:900}.receipt-logo{width:58px;height:58px}.logo-setting{display:flex;align-items:center;gap:18px;margin-bottom:20px;padding:16px;border:1px dashed var(--line);border-radius:15px;background:#fafafa}.logo-setting p{margin:9px 0 0;color:var(--muted);font-size:12px}.settings-logo{width:86px;height:86px}.bank-logo-img{display:block;width:132px;height:42px;object-fit:contain;object-position:left center}.bank-logo-img.large{width:170px;height:52px}.bank-logo-fallback{display:inline-flex;align-items:center;justify-content:center;min-width:112px;height:38px;padding:0 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font-weight:900}.bank-logo-fallback.large{min-width:145px;height:48px;font-size:17px}.bank-setting-preview{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.bank-setting-preview span{font-size:12px;color:var(--muted)}.bank-logo-actions{display:flex;gap:8px;flex-wrap:wrap}.field-help{display:block;margin-top:7px;color:var(--muted);line-height:1.35}.payment-bank{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.payment-bank>div{display:grid;gap:2px}.payment-bank small,.payment-bank span{font-size:10px;color:var(--muted)}.payment-bank strong{font-size:15px;letter-spacing:.04em}@media(max-width:720px){.logo-setting{align-items:flex-start}.receipt-head.branded{gap:8px}.receipt-logo{width:48px;height:48px}}@media print{.payment-bank{-webkit-print-color-adjust:exact;print-color-adjust:exact}.bank-logo-img,.bank-logo-fallback{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.item-calc{font-size:12px;color:var(--muted);margin-left:auto;margin-right:10px}.calc-note{margin-top:10px;padding:9px 12px;border-radius:10px;background:#fff7d6;color:#6c5200;font-size:12px}.summary-row.extra-detail{font-size:12px;color:var(--muted)}.summary-row.extra-detail b{color:var(--text)}
+/* Product manager v4.3 */
+.product-subtitle{font-size:12px;color:var(--muted)}.product-search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 11px;min-width:240px}.product-search span{font-size:20px;color:var(--muted)}.product-search input{border:0;outline:0;padding:10px 0;width:100%;background:transparent}.product-table td{vertical-align:middle}.product-number{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#f1f5f9;color:#475569;font-weight:800}.product-name-cell{display:flex;align-items:center;gap:11px}.product-name-cell>div{display:grid;gap:3px}.product-name-cell small{font-size:10px;color:var(--muted)}.product-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#111827;color:#d4a84b}.product-price{font-size:15px}.product-actions{display:flex;gap:6px;flex-wrap:wrap}.product-empty{display:grid;gap:7px}.product-empty span{font-size:12px}.empty-icon{font-size:34px;color:#94a3b8}.modal-open{overflow:hidden}.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.58);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}.modal-backdrop.show{display:flex;animation:fadeIn .16s ease}.modal-card{width:min(520px,100%);background:#fff;border-radius:20px;box-shadow:0 28px 80px rgba(0,0,0,.28);overflow:hidden;animation:modalUp .2s ease}.modal-head{display:flex;gap:16px;align-items:flex-start;padding:22px 24px 16px;border-bottom:1px solid var(--line)}.modal-head>div{flex:1}.modal-head h2{margin:3px 0 5px;font-size:22px}.modal-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}.modal-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#a27622}.modal-close{width:36px;height:36px;border:0;border-radius:10px;background:#f1f5f9;font-size:25px;line-height:1;cursor:pointer}.modal-body{padding:22px 24px;display:grid;gap:18px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px 22px}.required{color:var(--danger)}.money-input{display:flex;align-items:center;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}.money-input:focus-within{border-color:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.12)}.money-input span{align-self:stretch;display:grid;place-items:center;padding:0 13px;background:#f8fafc;border-right:1px solid var(--line);font-weight:800;color:#475569}.money-input input{border:0!important;border-radius:0!important;outline:0;box-shadow:none!important}.price-preview{font-size:12px;color:var(--muted);margin-top:6px}.price-preview b{color:var(--text)}.form-error{padding:11px 12px;border-radius:10px;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;font-size:12px;font-weight:650}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes modalUp{from{transform:translateY(12px) scale(.98);opacity:0}to{transform:none;opacity:1}}@media(max-width:720px){.product-stats{grid-template-columns:1fr!important}.product-toolbar{align-items:stretch}.product-toolbar>div:first-child{width:100%}.product-search{min-width:0;flex:1}.product-actions{min-width:210px}.modal-card{border-radius:17px}.modal-head,.modal-body,.modal-actions{padding-left:18px;padding-right:18px}}
+
+/* Nota Digital v1.2.0 */
+.receipt-modal{position:fixed;inset:0;z-index:100200;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:18px}
+.receipt-card{position:relative;width:min(520px,100%);background:#fff;border-radius:22px;padding:26px;box-shadow:0 25px 80px rgba(0,0,0,.35);text-align:center}
+.receipt-card h2{margin:8px 0 5px}.receipt-card p{color:#64748b;margin:0 0 20px}.receipt-success{width:58px;height:58px;border-radius:50%;margin:auto;display:grid;place-items:center;background:#dcfce7;color:#166534;font-size:32px;font-weight:900}
+.receipt-close{position:absolute;right:14px;top:12px;border:0;background:transparent;font-size:28px;cursor:pointer;color:#64748b}
+.receipt-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.receipt-action-grid button{border:1px solid #dbe3ee;background:#f8fafc;border-radius:13px;padding:12px 10px;font-weight:750;cursor:pointer;color:#111827}.receipt-action-grid button:hover{background:#eef2f7}.receipt-action-grid button:nth-child(2){background:#dcfce7;color:#166534;border-color:#bbf7d0}.receipt-action-grid button:nth-child(1){background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.receipt-pdf{color:#1d4ed8!important}.receipt-wa{color:#15803d!important}
+@media(max-width:560px){.receipt-action-grid{grid-template-columns:1fr}.receipt-card{padding:22px 16px}.actions-cell{min-width:420px}}
+
+/* v1.2.3: gambar desain ditampilkan utuh, tidak terpotong */
+#thumbs .thumb,.preview .thumb{background:#fff}
+#thumbs .thumb img,.preview .thumb img{object-fit:contain!important;object-position:center!important;background:#fff}
+
+/* ===== SHIROGANE v1.4.0 Public Receipt ===== */
+.public-receipt-mode body{margin:0;background:#eef2f7;color:#0f172a;font-family:Inter,Segoe UI,Arial,sans-serif}.public-receipt-page{width:min(980px,calc(100% - 24px));margin:24px auto}.public-receipt-sheet{background:#fff;border-radius:18px;box-shadow:0 18px 60px rgba(15,23,42,.15);padding:34px}.public-receipt-loading,.public-receipt-error{text-align:center;padding:70px 20px;color:#64748b}.public-receipt-error h2{color:#b91c1c}.public-receipt-head{display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;border-bottom:3px solid #111827;padding-bottom:16px}.public-receipt-logo{width:72px;height:72px;object-fit:contain}.public-receipt-head h1{margin:0;font-size:28px}.public-receipt-head p{margin:3px 0;color:#64748b;font-size:12px}.public-receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:14px 0;font-size:12px}.public-receipt-meta div:nth-child(even){text-align:right}.public-receipt-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:12px}.public-receipt-table-wrap table{width:100%;border-collapse:collapse;min-width:760px}.public-receipt-table-wrap th,.public-receipt-table-wrap td{padding:8px 6px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px}.public-receipt-table-wrap th:first-child,.public-receipt-table-wrap td:first-child{text-align:left}.public-receipt-table-wrap th{background:#f8fafc;color:#475569}.public-receipt-summary{width:min(430px,100%);margin:16px 0 0 auto}.public-receipt-summary>div{display:flex;justify-content:space-between;padding:7px 0}.public-receipt-summary .total{border-top:1px solid #cbd5e1;margin-top:4px;padding-top:12px;font-size:18px}.public-receipt-summary .balance{color:#111827;font-size:24px;font-weight:900}.public-receipt-bank{margin-top:18px;padding:14px;border:1px solid #dbe3ec;border-radius:12px;background:#f8fafc}.public-receipt-bank small,.public-receipt-bank strong,.public-receipt-bank span{display:block}.public-receipt-bank strong{font-size:18px}.public-receipt-note{font-size:12px;margin:16px 0 8px}.public-receipt-designs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.public-receipt-designs figure{margin:0;height:320px;border:1px solid #e2e8f0;border-radius:12px;padding:8px;background:#fff}.public-receipt-designs img{width:100%;height:100%;object-fit:contain;object-position:center}.public-receipt-sheet footer{text-align:center;color:#64748b;font-size:11px;margin-top:18px}.public-receipt-actions{display:flex;justify-content:center;gap:10px;margin-top:20px}.public-receipt-actions button{border:0;border-radius:10px;padding:11px 16px;background:#111827;color:#fff;font-weight:700}.public-receipt-mode #app,.public-receipt-mode #toast{display:none!important}@media(max-width:720px){.public-receipt-page{width:100%;margin:0}.public-receipt-sheet{border-radius:0;padding:18px}.public-receipt-designs{grid-template-columns:1fr}.public-receipt-designs figure{height:280px}}@media print{.public-receipt-mode body{background:#fff}.public-receipt-page{width:100%;margin:0}.public-receipt-sheet{box-shadow:none;border-radius:0;padding:0}.public-receipt-actions{display:none}.public-receipt-designs img{object-fit:contain!important}}
+
+/* v1.4.2 - detail tambahan ukuran pada nota */
+.public-receipt-summary .extra-detail,.summary-row.extra-detail{font-size:12px;color:#334155;padding-top:4px;padding-bottom:4px}
+
+/* v1.4.3 - rincian biaya ukuran */
+.extra-title{font-size:12px;font-weight:800;color:#334155;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.summary-row.extra-detail{font-size:12px;padding:3px 0}
+.summary-row.extra-total{font-size:12px;font-weight:800;border-top:1px dashed var(--line);padding-top:6px;margin-top:3px}
+
+/* v1.4.4 — rincian biaya ukuran wajib terlihat pada preview, F4, dan PDF */
+.extra-title{display:block!important;font-size:12px!important;font-weight:800!important;color:#111827!important;margin:10px 0 4px!important;text-transform:uppercase!important;letter-spacing:.03em!important}
+.summary-row.extra-detail{display:flex!important;justify-content:space-between!important;gap:16px!important;font-size:12px!important;color:#111827!important;padding:3px 0!important}
+.summary-row.extra-total{display:flex!important;font-weight:800!important;border-top:1px dashed #cbd5e1!important;padding-top:6px!important;margin-top:3px!important}
+@media print{.extra-title,.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;color:#111827!important}.extra-title{display:block!important}}
+
+/* v1.6.2: rincian tambahan biaya wajib terlihat pada preview/cetak/PDF */
+.extra-title{display:block!important;font-size:12px!important;font-weight:900!important;color:#111827!important;margin:10px 0 5px!important;text-transform:uppercase!important}
+.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;opacity:1!important;justify-content:space-between!important;gap:12px!important;color:#111827!important;font-size:12px!important;line-height:1.45!important;padding:4px 0!important}
+.summary-row.extra-detail span{white-space:normal!important}
+@media print{.extra-title,.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;opacity:1!important}.extra-title{display:block!important}}
+
+/* emphasized remaining balance */
+.summary-row.balance{font-size:24px!important;font-weight:900!important;color:#111827!important;border-top:3px solid #111827!important;padding-top:14px!important}
+.summary-row.balance span{font-weight:900!important}
+
+/* v1.7.0: fokus sisa pembayaran */
+.sizes{grid-template-columns:repeat(9,minmax(52px,1fr))}
+.summary-row.balance{
+  background:#fff3cd!important;
+  color:#111827!important;
+  border:3px solid #111827!important;
+  border-radius:12px!important;
+  padding:15px 16px!important;
+  font-size:25px!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+}
+.summary-row.balance span{font-size:inherit!important;font-weight:900!important}
+@media(max-width:1100px){.sizes{grid-template-columns:repeat(5,minmax(55px,1fr))}}
+@media print{
+  .summary-row.balance{
+    background:#fff!important;
+    color:#000!important;
+    border:3px solid #000!important;
+    font-size:25px!important;
+    font-weight:900!important;
+  }
+}
+
+/* v1.7.0 portable verification */
+#activeBuildBadge{font-size:14px!important;font-weight:900!important;opacity:1!important;background:#b91c1c!important;padding:8px 12px!important;border:2px solid #fff!important;box-shadow:0 4px 16px rgba(0,0,0,.3)!important}
+.receipt-action-grid{grid-template-columns:1fr 1fr!important}
+
+/* v1.7.0 — kotak sisa pembayaran responsif, tidak melewati panel nota */
+.preview .summary-row.balance{
+  display:grid!important;
+  grid-template-columns:minmax(105px,.85fr) minmax(0,1.15fr)!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  padding:14px 14px!important;
+}
+.preview .summary-row.balance span{
+  min-width:0!important;
+  max-width:100%!important;
+  line-height:1.12!important;
+}
+.preview .summary-row.balance span:first-child{
+  font-size:clamp(18px,1.7vw,25px)!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+}
+.preview .summary-row.balance span:last-child{
+  font-size:clamp(18px,1.65vw,25px)!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.025em!important;
+}
+.split>*{min-width:0}
+.sticky,.preview{min-width:0;max-width:100%}
+@media(max-width:1180px){
+  .preview .summary-row.balance{
+    grid-template-columns:minmax(92px,.8fr) minmax(0,1.2fr)!important;
+    padding:13px 11px!important;
+    column-gap:7px!important;
+  }
+  .preview .summary-row.balance span:first-child{font-size:20px!important}
+  .preview .summary-row.balance span:last-child{font-size:20px!important}
+}
+@media(max-width:980px){
+  .split{grid-template-columns:1fr!important}
+  .sticky{position:static!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    overflow:visible!important;
+    grid-template-columns:1fr auto!important;
+  }
+}
+
+/* v1.7.0 — layout responsif untuk jendela Windows yang tidak dimaksimalkan */
+.card,.panel,.toolbar,.field,.table-wrap{min-width:0}
+.card .value{
+  max-width:100%;
+  font-size:clamp(20px,2.15vw,28px);
+  line-height:1.15;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.actions-cell{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.actions-cell .btn{margin:0!important;white-space:nowrap}
+
+/* Pada lebar jendela laptop, form dan preview disusun ke bawah agar tidak berdesakan. */
+@media(max-width:1280px){
+  .page{padding:20px}
+  .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:minmax(0,1fr)!important}
+  .sticky{position:static!important;top:auto!important}
+  .form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+  /* Dashboard tetap muat tanpa tulisan keluar dari kartu atau tabel. */
+  #page-dashboard .table-wrap{overflow-x:auto;max-width:100%}
+  #page-dashboard .table-wrap table{min-width:680px;table-layout:fixed}
+  #page-dashboard .table-wrap th:nth-child(1),#page-dashboard .table-wrap td:nth-child(1){width:16%}
+  #page-dashboard .table-wrap th:nth-child(2),#page-dashboard .table-wrap td:nth-child(2){width:16%}
+  #page-dashboard .table-wrap th:nth-child(3),#page-dashboard .table-wrap td:nth-child(3){width:13%}
+  #page-dashboard .table-wrap th:nth-child(4),#page-dashboard .table-wrap td:nth-child(4){width:14%}
+  #page-dashboard .table-wrap th:nth-child(5),#page-dashboard .table-wrap td:nth-child(5){width:14%}
+  #page-dashboard .table-wrap th:nth-child(6),#page-dashboard .table-wrap td:nth-child(6){width:13%}
+  #page-dashboard .table-wrap th:nth-child(7),#page-dashboard .table-wrap td:nth-child(7){width:14%}
+  #page-dashboard td{overflow-wrap:anywhere}
+  #page-dashboard td:last-child{white-space:normal}
+  #page-dashboard td:last-child .btn{padding:6px 8px;font-size:11px;margin:2px 1px}
+}
+
+@media(max-width:1050px){
+  .sidebar{width:220px;padding-left:14px;padding-right:14px}
+  main{margin-left:220px}
+  .topbar{padding-left:20px;padding-right:20px}
+  .form-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toolbar{align-items:flex-start}
+  .toolbar .spacer{min-width:10px}
+  .panel{padding:18px}
+}
+
+@media(max-width:820px){
+  .grid.cards{grid-template-columns:1fr}
+  .form-grid.three{grid-template-columns:1fr}
+  #page-dashboard .table-wrap table{min-width:650px}
+}
+
+/* v1.7.0 — cegah label dan nominal Sisa Pembayaran bertumpuk */
+.preview .summary-row.balance{
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto auto!important;
+  row-gap:7px!important;
+  column-gap:0!important;
+  align-items:start!important;
+}
+.preview .summary-row.balance span:first-child{
+  width:100%!important;
+  font-size:22px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+}
+.preview .summary-row.balance span:last-child{
+  width:100%!important;
+  font-size:clamp(22px,2.2vw,28px)!important;
+  line-height:1.05!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+@media(max-width:1180px){
+  .preview .summary-row.balance span:first-child{font-size:21px!important}
+  .preview .summary-row.balance span:last-child{font-size:23px!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto!important;
+    column-gap:12px!important;
+    align-items:center!important;
+  }
+  .preview .summary-row.balance span:last-child{width:auto!important;overflow:visible!important}
+}
+
+/* v1.7.0 — layout final Sisa Pembayaran: label di atas, nominal besar di bawah */
+.preview .summary-row.balance{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:16px 18px!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance span:first-child{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(18px,2vw,24px)!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+}
+.preview .summary-row.balance span:last-child{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(28px,3.1vw,44px)!important;
+  line-height:1!important;
+  font-weight:950!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.045em!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+@media(max-width:1180px){
+  .preview .summary-row.balance{padding:15px 16px!important;gap:8px!important}
+  .preview .summary-row.balance span:first-child{font-size:20px!important}
+  .preview .summary-row.balance span:last-child{font-size:clamp(26px,4vw,36px)!important}
+}
+@media(max-width:720px){
+  .preview .summary-row.balance span:last-child{font-size:clamp(24px,8vw,34px)!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:7px!important;
+    overflow:visible!important;
+  }
+  .preview .summary-row.balance span:first-child{text-align:left!important}
+  .preview .summary-row.balance span:last-child{
+    width:100%!important;
+    font-size:30px!important;
+    text-align:right!important;
+    overflow:visible!important;
+  }
+}
+
+/* =========================================================
+   SHIROGANE FINAL v1.7.0 — responsive stability overrides
+   ========================================================= */
+html,body,#app{max-width:100%;min-width:0;overflow-x:hidden}
+main,.page,.panel,.card,.split,.sticky,.preview,.table-wrap,.form-grid,.field{min-width:0;max-width:100%}
+
+/* Summary cards never push outside the viewport. */
+.grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card .value{
+  width:100%;
+  max-width:100%;
+  font-size:clamp(19px,2.15vw,30px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+/* Tables stay usable without forcing the whole app wider. */
+.table-wrap{width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+table{max-width:100%}
+.actions-cell{min-width:150px;display:flex;flex-wrap:wrap;gap:6px}
+.actions-cell .btn{flex:0 0 auto}
+
+/* Order form and receipt preview gracefully stack on narrow windows. */
+.split{grid-template-columns:minmax(0,1.65fr) minmax(320px,.75fr)}
+.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%}
+
+/* Final debt box: two real rows, never overlaying each other. */
+.preview .summary-row.balance{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  gap:8px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:15px 16px!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance>span:first-child{
+  grid-row:1!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(18px,1.8vw,24px)!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+}
+.preview .summary-row.balance>span:last-child{
+  grid-row:2!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+  font-size:clamp(25px,3vw,40px)!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.04em!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+
+/* Hide the temporary red build marker in the final release. */
+#activeBuildBadge{display:none!important}
+
+@media(max-width:1280px){
+  .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:minmax(0,1fr)!important}
+  .sticky{position:static!important}
+  .form-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .preview .summary-row.balance>span:last-child{font-size:clamp(25px,4vw,36px)!important}
+}
+@media(max-width:900px){
+  .grid.cards,.form-grid.three{grid-template-columns:1fr!important}
+  .page{padding:16px!important}
+  .panel{padding:16px!important}
+  .topbar{gap:10px}
+  .topbar h1{font-size:24px}
+}
+@media print{
+  html,body,#app{overflow:visible!important}
+  .preview .summary-row.balance{
+    overflow:visible!important;
+    padding:14px 16px!important;
+  }
+  .preview .summary-row.balance>span:last-child{
+    font-size:30px!important;
+    overflow:visible!important;
+  }
+}
+
+/* =========================================================
+   SHIROGANE v1.7.1 — receipt narrow-panel text fitting
+   Fixes clipped balance and bank account numbers in Electron.
+   ========================================================= */
+.preview{container-type:inline-size}
+
+.preview .summary-row.balance>span:last-child{
+  font-size:clamp(23px,12cqw,34px)!important;
+  letter-spacing:-.045em!important;
+}
+
+.preview .payment-bank{
+  display:grid!important;
+  grid-template-columns:minmax(72px,96px) minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+  padding:11px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank .bank-logo-img,
+.preview .payment-bank .bank-logo-img.large{
+  width:100%!important;
+  max-width:96px!important;
+  height:42px!important;
+  object-fit:contain!important;
+}
+.preview .payment-bank .bank-logo-fallback,
+.preview .payment-bank .bank-logo-fallback.large{
+  min-width:0!important;
+  width:100%!important;
+  max-width:96px!important;
+  height:42px!important;
+  padding:0 6px!important;
+  font-size:14px!important;
+}
+.preview .payment-bank>div{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank strong{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  font-size:clamp(10px,5.2cqw,15px)!important;
+  line-height:1.15!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+.preview .payment-bank small,
+.preview .payment-bank span{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+
+@container (max-width:300px){
+  .preview .summary-row.balance>span:last-child{font-size:clamp(22px,11.5cqw,31px)!important}
+  .preview .payment-bank{grid-template-columns:78px minmax(0,1fr)!important;gap:8px!important;padding:9px!important}
+  .preview .payment-bank strong{font-size:clamp(9.5px,4.9cqw,13px)!important}
+}
+
+@media print{
+  .preview .summary-row.balance>span:last-child{font-size:30px!important}
+  .preview .payment-bank strong{font-size:14px!important}
+}
+
+
+/* v1.7.2 — ukuran teks ditentukan JavaScript berdasarkan lebar kotak sebenarnya */
+.preview .summary-row.balance > span:last-child,
+.preview .payment-bank strong {
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.preview .payment-bank{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank > div{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+.preview .payment-bank strong{display:block!important;width:100%!important;letter-spacing:.02em!important}
+@media(max-width:1100px){
+  .preview .bank-logo-img{width:96px!important;height:34px!important}
+  .preview .payment-bank{padding:10px!important;gap:8px!important}
+}
+
+
+/* v1.7.3 unmistakable build marker */
+.version-proof{position:fixed;top:8px;right:150px;z-index:9999;background:#b91c1c;color:#fff;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+.preview .summary-row.balance{display:grid!important;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;align-items:center!important;gap:8px!important}
+.preview .summary-row.balance>span{min-width:0!important}
+.preview .summary-row.balance>span:last-child{display:block!important;width:100%!important;text-align:right!important}
+.preview .payment-bank{grid-template-columns:minmax(64px,92px) minmax(0,1fr)!important}
+@media(max-width:1000px){.version-proof{right:72px}.preview .summary-row.balance{grid-template-columns:1fr!important}.preview .summary-row.balance>span:last-child{text-align:left!important}}
+
+
+/* =========================================================
+   SHIROGANE FINAL — clean debt box, no temporary badge
+   ========================================================= */
+.version-proof{display:none!important}
+
+.preview .summary-row.balance{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-height:118px!important;
+  padding:14px 12px!important;
+  text-align:center!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance>span:first-child{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  font-size:16px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  letter-spacing:.01em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+.preview .summary-row.balance>span:last-child{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  font-size:34px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.035em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  transform-origin:center center!important;
+}
+@container (max-width:300px){
+  .preview .summary-row.balance{min-height:112px!important;padding:13px 10px!important}
+  .preview .summary-row.balance>span:first-child{font-size:15px!important}
+  .preview .summary-row.balance>span:last-child{font-size:31px!important}
+}
+@media print{
+  .preview .summary-row.balance>span:first-child{font-size:15px!important}
+  .preview .summary-row.balance>span:last-child{font-size:30px!important}
+}
