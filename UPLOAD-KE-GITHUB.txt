@@ -1,4 +1,4 @@
-SHIROGANE MASTER v1.8.0
+SHIROGANE MASTER v1.8.1
 
 1. Buka repository GitHub shirogane-production-suite.
 2. Klik Add file > Upload files.
@@ -6,7 +6,7 @@ SHIROGANE MASTER v1.8.0
 4. Pastikan file lama diganti, lalu Commit changes.
 5. Tunggu Actions/Pages selesai (tanda hijau).
 6. Buka: https://iydachbuawel-droid.github.io/shirogane-production-suite/?v=180
-7. Jika aplikasi lama masih terbuka, tutup total lalu buka link di atas sekali. Service worker v1.8.0 akan membersihkan cache lama.
+7. Jika aplikasi lama masih terbuka, tutup total lalu buka link di atas sekali. Service worker v1.8.1 akan membersihkan cache lama.
 
 SUPABASE:
 Authentication > URL Configuration

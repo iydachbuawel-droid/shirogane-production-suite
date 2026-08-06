@@ -2,7 +2,7 @@
   "name": "SHIROGANE Production Suite",
   "short_name": "SHIROGANE",
   "description": "Manajemen pesanan, nota, pelanggan, harga, desain, pembayaran, dan produksi SHIROGANE.",
-  "start_url": "./index.html?v=1.8.0",
+  "start_url": "./index.html?v=1.8.1",
   "display": "standalone",
   "background_color": "#f4f6f8",
   "theme_color": "#111827",

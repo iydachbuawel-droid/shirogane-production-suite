@@ -182,8 +182,51 @@ function receiptHTML(o){
 }
 function updatePreview(){$('#livePreview').innerHTML=receiptHTML(draft)}
 window.cancelEdit=()=>{draft=null;editingOrder=null;nav('orders')};window.saveCurrent=print=>{if(!draft.customer.trim())return toast('Nama pelanggan wajib diisi.');if(!draft.items.length)return toast('Tambahkan minimal satu barang.');for(let i=0;i<draft.items.length;i++){const it=draft.items[i];if(!String(it.name||'').trim())return toast(`Nama barang ${i+1} wajib diisi.`);const c=orderTotals({...draft,items:[it],discount:0,deposit:0});if(c.qty<=0)return toast(`Jumlah barang ${i+1} masih 0.`);if(safeNumber(it.price)<=0)return toast(`Harga barang ${i+1} belum diisi.`)}draft.discount=safeNumber(draft.discount);draft.deposit=safeNumber(draft.deposit);const idx=db.orders.findIndex(o=>o.id===draft.id);if(idx>=0)db.orders[idx]=structuredClone(draft);else db.orders.push(structuredClone(draft));save();toast('Pesanan berhasil disimpan.');const id=draft.id;draft=null;editingOrder=null;renderAll();if(print)printOrder(id,'f4');else nav('orders')};
+function ensureMobilePrintStyles(){
+ if(document.getElementById('mobilePrintStyles'))return;
+ const style=document.createElement('style');
+ style.id='mobilePrintStyles';
+ style.textContent=`
+ .mobile-print-overlay{position:fixed;inset:0;z-index:99999;background:#eef2f7;display:flex;flex-direction:column}
+ .mobile-print-toolbar{display:flex;gap:8px;align-items:center;padding:10px;background:#111827;position:sticky;top:0;z-index:2}
+ .mobile-print-toolbar button{flex:1;border:0;border-radius:10px;padding:11px 8px;font-weight:800;background:#fff;color:#111827}
+ .mobile-print-toolbar .pdf-button{background:#dc2626;color:#fff}
+ .mobile-print-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;flex:1}
+ .mobile-print-area{background:#fff;margin:0 auto;box-shadow:0 8px 30px rgba(15,23,42,.15)}
+ .mobile-print-area.f4-print{width:min(100%,794px)}
+ .mobile-print-area.thermal-print{width:min(100%,320px)}
+ @media print{
+   body.mobile-printing>*:not(.mobile-print-overlay){display:none!important}
+   body.mobile-printing .mobile-print-overlay{position:static!important;display:block!important;background:#fff!important}
+   body.mobile-printing .mobile-print-toolbar{display:none!important}
+   body.mobile-printing .mobile-print-scroll{overflow:visible!important;padding:0!important}
+   body.mobile-printing .mobile-print-area{box-shadow:none!important;margin:0 auto!important;width:auto!important}
+ }`;
+ document.head.appendChild(style);
+}
+window.closeMobilePrintPreview=()=>{
+ const overlay=document.getElementById('mobilePrintOverlay');
+ if(overlay)overlay.remove();
+ document.body.classList.remove('mobile-printing');
+};
+window.printMobilePreview=()=>{
+ document.body.classList.add('mobile-printing');
+ setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
+};
+function openMobilePrintPreview(o,type){
+ ensureMobilePrintStyles();
+ closeMobilePrintPreview();
+ const isThermal=type==='thermal';
+ const overlay=document.createElement('div');
+ overlay.id='mobilePrintOverlay';
+ overlay.className='mobile-print-overlay';
+ overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print / PDF'}</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
+ document.body.appendChild(overlay);
+}
 window.printOrder=(id,type)=>{
  const o=db.orders.find(x=>x.id===id);if(!o)return;
+ const mobileMode=window.matchMedia('(max-width: 820px)').matches||window.matchMedia('(display-mode: standalone)').matches||/Android|iPhone|iPad/i.test(navigator.userAgent);
+ if(mobileMode){openMobilePrintPreview(o,type);return;}
  const w=window.open('','_blank');
  if(!w)return toast('Jendela preview diblokir.');
  const isThermal=type==='thermal';
