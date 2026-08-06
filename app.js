@@ -226,7 +226,20 @@ function openMobilePrintPreview(o,type){
 window.printOrder=(id,type)=>{
  const o=db.orders.find(x=>x.id===id);if(!o)return;
  const mobileMode=window.matchMedia('(max-width: 820px)').matches||window.matchMedia('(display-mode: standalone)').matches||/Android|iPhone|iPad/i.test(navigator.userAgent);
- if(mobileMode){openMobilePrintPreview(o,type);return;}
+ if(mobileMode){
+   try{
+     sessionStorage.setItem('shirogane-mobile-print',JSON.stringify({
+       html:receiptHTML(o),
+       type:type==='thermal'?'thermal':'f4',
+       invoice:o.invoice||'Nota-SHIROGANE'
+     }));
+     window.location.href='./print-preview.html?v=1.8.2';
+   }catch(err){
+     console.error('Gagal membuka preview cetak Android:',err);
+     openMobilePrintPreview(o,type);
+   }
+   return;
+ }
  const w=window.open('','_blank');
  if(!w)return toast('Jendela preview diblokir.');
  const isThermal=type==='thermal';

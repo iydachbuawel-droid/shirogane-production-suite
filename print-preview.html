@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+  <meta name="theme-color" content="#111827">
+  <title>Preview Nota SHIROGANE</title>
+  <link rel="stylesheet" href="styles.css?v=1.8.2">
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#eef2f7;color:#0f172a;font-family:Arial,sans-serif}
+    .print-toolbar{position:sticky;top:0;z-index:1000;display:flex;gap:8px;padding:10px;background:#111827;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+    .print-toolbar button{flex:1;border:0;border-radius:10px;padding:12px 8px;font-size:14px;font-weight:800;cursor:pointer}
+    #doPrint{background:#fff;color:#111827}
+    #goBack{background:#dc2626;color:#fff}
+    .print-scroll{padding:12px;overflow:auto;-webkit-overflow-scrolling:touch}
+    .print-sheet{background:#fff;margin:0 auto;box-shadow:0 8px 30px rgba(15,23,42,.15)}
+    .print-sheet.f4-print{width:min(100%,794px)}
+    .print-sheet.thermal-print{width:min(100%,320px)}
+    .message{max-width:520px;margin:60px auto;background:#fff;border-radius:16px;padding:24px;text-align:center}
+    @media print{
+      @page{margin:10mm}
+      body{background:#fff}
+      .print-toolbar{display:none!important}
+      .print-scroll{padding:0!important;overflow:visible!important}
+      .print-sheet{width:auto!important;margin:0 auto!important;box-shadow:none!important}
+      .print-sheet.thermal-print{width:80mm!important}
+    }
+  </style>
+</head>
+<body>
+  <div class="print-toolbar no-print">
+    <button id="doPrint">🖨 Cetak / Simpan PDF</button>
+    <button id="goBack">✕ Kembali</button>
+  </div>
+  <main id="root" class="print-scroll"><div class="message">Memuat preview nota...</div></main>
+  <script>
+    (()=>{
+      const root=document.getElementById('root');
+      let payload=null;
+      try{payload=JSON.parse(sessionStorage.getItem('shirogane-mobile-print')||'null')}catch(e){}
+      if(!payload||!payload.html){
+        root.innerHTML='<div class="message"><h2>Preview tidak tersedia</h2><p>Kembali ke aplikasi lalu tekan tombol Print sekali lagi.</p></div>';
+        document.getElementById('doPrint').disabled=true;
+      }else{
+        document.title=(payload.invoice||'Nota SHIROGANE')+' — Preview';
+        root.innerHTML='<div class="print-sheet '+(payload.type==='thermal'?'thermal-print':'f4-print')+'">'+payload.html+'</div>';
+      }
+      document.getElementById('doPrint').addEventListener('click',()=>{
+        if(!payload||!payload.html)return;
+        setTimeout(()=>window.print(),50);
+      });
+      document.getElementById('goBack').addEventListener('click',()=>{
+        if(history.length>1)history.back();else location.href='./index.html?v=1.8.2';
+      });
+    })();
+  </script>
+</body>
+</html>

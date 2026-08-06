@@ -1,0 +1,7 @@
+SHIROGANE v1.8.2 — ANDROID PRINT FIX
+
+- Tombol Print Android membuka halaman preview khusus di tab yang sama.
+- Tidak memakai popup/window.open pada Android.
+- Tombol Cetak / Simpan PDF memanggil dialog cetak Android.
+- Tombol Kembali kembali ke aplikasi tanpa kehilangan data.
+- Cache PWA dinaikkan ke v1.8.2.
