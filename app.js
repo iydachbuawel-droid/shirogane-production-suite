@@ -182,57 +182,14 @@ function receiptHTML(o){
 }
 function updatePreview(){$('#livePreview').innerHTML=receiptHTML(draft)}
 window.cancelEdit=()=>{draft=null;editingOrder=null;nav('orders')};window.saveCurrent=print=>{if(!draft.customer.trim())return toast('Nama pelanggan wajib diisi.');if(!draft.items.length)return toast('Tambahkan minimal satu barang.');for(let i=0;i<draft.items.length;i++){const it=draft.items[i];if(!String(it.name||'').trim())return toast(`Nama barang ${i+1} wajib diisi.`);const c=orderTotals({...draft,items:[it],discount:0,deposit:0});if(c.qty<=0)return toast(`Jumlah barang ${i+1} masih 0.`);if(safeNumber(it.price)<=0)return toast(`Harga barang ${i+1} belum diisi.`)}draft.discount=safeNumber(draft.discount);draft.deposit=safeNumber(draft.deposit);const idx=db.orders.findIndex(o=>o.id===draft.id);if(idx>=0)db.orders[idx]=structuredClone(draft);else db.orders.push(structuredClone(draft));save();toast('Pesanan berhasil disimpan.');const id=draft.id;draft=null;editingOrder=null;renderAll();if(print)printOrder(id,'f4');else nav('orders')};
-function ensureMobilePrintStyles(){
- if(document.getElementById('mobilePrintStyles'))return;
- const style=document.createElement('style');
- style.id='mobilePrintStyles';
- style.textContent=`
- .mobile-print-overlay{position:fixed;inset:0;z-index:99999;background:#eef2f7;display:flex;flex-direction:column}
- .mobile-print-toolbar{display:flex;gap:8px;align-items:center;padding:10px;background:#111827;position:sticky;top:0;z-index:2}
- .mobile-print-toolbar button{flex:1;border:0;border-radius:10px;padding:11px 8px;font-weight:800;background:#fff;color:#111827}
- .mobile-print-toolbar .pdf-button{background:#dc2626;color:#fff}
- .mobile-print-scroll{overflow:auto;-webkit-overflow-scrolling:touch;padding:12px;flex:1}
- .mobile-print-area{background:#fff;margin:0 auto;box-shadow:0 8px 30px rgba(15,23,42,.15)}
- .mobile-print-area.f4-print{width:min(100%,794px)}
- .mobile-print-area.thermal-print{width:min(100%,320px)}
- @media print{
-   body.mobile-printing>*:not(.mobile-print-overlay){display:none!important}
-   body.mobile-printing .mobile-print-overlay{position:static!important;display:block!important;background:#fff!important}
-   body.mobile-printing .mobile-print-toolbar{display:none!important}
-   body.mobile-printing .mobile-print-scroll{overflow:visible!important;padding:0!important}
-   body.mobile-printing .mobile-print-area{box-shadow:none!important;margin:0 auto!important;width:auto!important}
- }`;
- document.head.appendChild(style);
-}
-window.closeMobilePrintPreview=()=>{
- const overlay=document.getElementById('mobilePrintOverlay');
- if(overlay)overlay.remove();
- document.body.classList.remove('mobile-printing');
-};
-window.printMobilePreview=()=>{
- document.body.classList.add('mobile-printing');
- setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
-};
-function openMobilePrintPreview(o,type){
- ensureMobilePrintStyles();
- closeMobilePrintPreview();
- const isThermal=type==='thermal';
- const overlay=document.createElement('div');
- overlay.id='mobilePrintOverlay';
- overlay.className='mobile-print-overlay';
- overlay.innerHTML=`<div class="mobile-print-toolbar no-print"><button onclick="printMobilePreview()">🖨 ${isThermal?'Print Thermal':'Print / PDF'}</button><button onclick="closeMobilePrintPreview()">✕ Tutup</button></div><div class="mobile-print-scroll"><div class="mobile-print-area ${isThermal?'thermal-print':'f4-print'}">${receiptHTML(o)}</div></div>`;
- document.body.appendChild(overlay);
+function openAndroidPrintPage(id,type){
+ const mode=type==='thermal'?'thermal':'print';
+ window.location.assign(`mobile-print.html?id=${encodeURIComponent(id)}&mode=${mode}&v=210`);
 }
 window.printOrder=(id,type)=>{
  const o=db.orders.find(x=>x.id===id);if(!o)return;
  const mobileMode=window.matchMedia('(max-width: 820px)').matches||window.matchMedia('(display-mode: standalone)').matches||/Android|iPhone|iPad/i.test(navigator.userAgent);
- if(mobileMode){
-  try{
-   localStorage.setItem('shirogane-mobile-print',JSON.stringify({invoice:o.invoice||'Nota-SHIROGANE',type:type||'f4',html:receiptHTML(o),savedAt:Date.now()}));
-   window.location.assign('./mobile-print.html?v=200');
-  }catch(err){console.error('Gagal membuka preview cetak Android:',err);toast('Preview cetak gagal dibuka.');}
-  return;
- }
+ if(mobileMode){openAndroidPrintPage(id,type);return;}
  const w=window.open('','_blank');
  if(!w)return toast('Jendela preview diblokir.');
  const isThermal=type==='thermal';
@@ -357,14 +314,35 @@ function nav(page){
 
 function renderAll(){renderDashboard();renderOrders();renderCustomers();renderProducts();renderReports();renderTrash();renderActivity();renderSettings();$('#brandNameSide').textContent=db.settings.business||'SHIROGANE';const mark=$('.brand-mark');if(mark)mark.innerHTML=db.settings.logo?`<img src="${db.settings.logo}" alt="Logo">`:esc((db.settings.business||'S').slice(0,1))}
 
-function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" data-bulk-toggle></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" data-order-check></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button type="button" class="btn small" data-order-action="open" data-order-id="${o.id}">Buka</button><button type="button" class="btn small" data-order-action="duplicate" data-order-id="${o.id}">Duplikat</button><button type="button" class="btn small" data-order-action="thermal" data-order-id="${o.id}">Thermal</button><button type="button" class="btn small" data-order-action="print" data-order-id="${o.id}">Print</button><button type="button" class="btn small danger" data-order-action="delete" data-order-id="${o.id}">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
+function ordersTable(arr,bulk=false){
+ const desktop=`<div class="table-wrap desktop-orders-table"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${esc(o.invoice)}</strong></td><td>${esc(o.customer||'-')}</td><td>${esc(o.date)}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${esc(o.productionStatus)}</span></td><td class="actions-cell"><button class="btn small" onclick="editOrder('${o.id}')">Buka</button> <button class="btn small" onclick="duplicateOrder('${o.id}')">Duplikat</button> <button class="btn small" onclick="printOrder('${o.id}','thermal')">Thermal</button> <button class="btn small" onclick="printOrder('${o.id}','f4')">Print</button> <button class="btn small danger" onclick="moveToTrash('${o.id}')">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`;
+ const mobile=`<div class="mobile-order-list">${arr.map(o=>{const t=orderTotals(o);return `<article class="mobile-order-card"><div class="mobile-order-top"><div><small>NO. NOTA</small><strong>${esc(o.invoice)}</strong></div><span class="badge ${statusClass(o.productionStatus)}">${esc(o.productionStatus)}</span></div><div class="mobile-order-customer">${esc(o.customer||'-')}</div><div class="mobile-order-meta"><div><small>Tanggal</small><b>${esc(o.date)}</b></div><div><small>Total</small><b>${money(t.total)}</b></div><div><small>Sisa</small><b>${money(t.balance)}</b></div></div><div class="mobile-order-actions"><button type="button" data-order-action="open" data-order-id="${o.id}">Buka</button><button type="button" data-order-action="duplicate" data-order-id="${o.id}">Duplikat</button><button type="button" data-order-action="thermal" data-order-id="${o.id}">Thermal</button><button type="button" data-order-action="print" data-order-id="${o.id}">Print</button><button type="button" class="danger" data-order-action="delete" data-order-id="${o.id}">Hapus</button></div></article>`}).join('')}</div>`;
+ return desktop+mobile;
+}
 
 function renderOrders(){const p=$('#page-orders');p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><input id="orderSearch" placeholder="Cari nomor nota atau pelanggan..." style="min-width:280px;padding:10px 12px;border:1px solid var(--line);border-radius:12px"><select id="statusFilter" class="btn"><option value="">Semua status</option>${['Baru Masuk','Diproses','Sablon','Jahit','Siap Diambil','Selesai'].map(x=>`<option>${x}</option>`).join('')}</select><span class="spacer"></span><button id="bulkDeleteBtn" class="btn danger" onclick="bulkTrash()" disabled>Hapus Terpilih (0)</button><button class="btn primary" onclick="startNew()">＋ Pesanan Baru</button></div><div id="ordersList" style="margin-top:16px"></div></div>`;const refresh=()=>{const q=$('#orderSearch').value.toLowerCase(),s=$('#statusFilter').value;const arr=[...db.orders].sort((a,b)=>b.createdAt-a.createdAt).filter(o=>(!q||o.invoice.toLowerCase().includes(q)||(o.customer||'').toLowerCase().includes(q))&&(!s||o.productionStatus===s));$('#ordersList').innerHTML=arr.length?ordersTable(arr,true):'<div class="empty">Pesanan tidak ditemukan.</div>'};$('#orderSearch').oninput=refresh;$('#statusFilter').onchange=refresh;refresh()}
 window.toggleAllOrders=checked=>{$$('.order-check').forEach(x=>x.checked=checked);updateBulkCount()};
 window.updateBulkCount=()=>{const n=$$('.order-check:checked').length,b=$('#bulkDeleteBtn');if(b){b.disabled=!n;b.textContent=`Hapus Terpilih (${n})`}};
 window.moveToTrash=id=>{const o=db.orders.find(x=>x.id===id);if(!o)return;if(!confirm(`Pindahkan nota ${o.invoice} ke Sampah?`))return;o.deletedAt=new Date().toISOString();db.trash.unshift(o);db.orders=db.orders.filter(x=>x.id!==id);logActivity('Hapus ke Sampah',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota dipindahkan ke Sampah.')};
 window.bulkTrash=()=>{const ids=$$('.order-check:checked').map(x=>x.value);if(!ids.length||!confirm(`Pindahkan ${ids.length} nota ke Sampah?`))return;ids.forEach(id=>{const o=db.orders.find(x=>x.id===id);if(o){o.deletedAt=new Date().toISOString();db.trash.unshift(o)}});db.orders=db.orders.filter(o=>!ids.includes(o.id));logActivity('Hapus banyak ke Sampah',`${ids.length} nota`);renderAll();toast(`${ids.length} nota dipindahkan ke Sampah.`)};
-window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return toast('Nota tidak ditemukan.');const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);save();logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`);renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
+window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return;const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`);renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
+
+if(!window.__shiroganeMobileActionsBound){
+ window.__shiroganeMobileActionsBound=true;
+ document.addEventListener('click',event=>{
+  const button=event.target.closest('[data-order-action]');
+  if(!button)return;
+  event.preventDefault(); event.stopPropagation();
+  const id=button.dataset.orderId, action=button.dataset.orderAction;
+  if(!id)return toast('ID pesanan tidak ditemukan.');
+  if(action==='open')return window.editOrder(id);
+  if(action==='duplicate')return window.duplicateOrder(id);
+  if(action==='thermal')return window.printOrder(id,'thermal');
+  if(action==='print')return window.printOrder(id,'f4');
+  if(action==='delete')return window.moveToTrash(id);
+ });
+}
+
 
 function renderTrash(){const p=$('#page-trash');if(!p)return;const arr=[...db.trash].sort((a,b)=>String(b.deletedAt).localeCompare(String(a.deletedAt)));p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><h2>Sampah (${arr.length})</h2><span class="spacer"></span>${arr.length?'<button class="btn danger" onclick="emptyTrash()">Kosongkan Sampah</button>':''}</div>${arr.length?`<div class="table-wrap"><table><thead><tr><th>No. Nota</th><th>Pelanggan</th><th>Dihapus</th><th>Total</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>`<tr><td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${fmtDateTime(o.deletedAt)}</td><td>${money(orderTotals(o).total)}</td><td><button class="btn small" onclick="restoreOrder('${o.id}')">Pulihkan</button> <button class="btn small danger" onclick="permanentDelete('${o.id}')">Hapus Permanen</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sampah kosong. Nota yang dihapus akan tersimpan di sini.</div>'}</div>`}
 window.restoreOrder=id=>{const o=db.trash.find(x=>x.id===id);if(!o)return;delete o.deletedAt;if(db.orders.some(x=>x.invoice===o.invoice))o.invoice=nextInvoice();db.orders.push(o);db.trash=db.trash.filter(x=>x.id!==id);logActivity('Pulihkan Nota',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota berhasil dipulihkan.')};
@@ -400,7 +378,7 @@ window.saveAdminName=()=>{db.settings.adminName=($('#sAdminName').value||'Admin'
 window.exportOrdersCSV=()=>{const rows=[['Nomor Nota','Tanggal','Pelanggan','WhatsApp','Status','Total','Panjar','Sisa'],...db.orders.map(o=>{const t=orderTotals(o);return[o.invoice,o.date,o.customer||'',o.phone||'',o.productionStatus,t.total,o.deposit||0,t.balance]})];const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pesanan-shirogane-${today()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);logActivity('Export CSV',`${db.orders.length} pesanan`)};
 window.resetSelectedData=()=>{const keys=[];if($('#rOrders')?.checked)keys.push('orders');if($('#rTrash')?.checked)keys.push('trash');if($('#rProducts')?.checked)keys.push('products');if($('#rActivity')?.checked)keys.push('activity');if(!keys.length)return toast('Pilih data yang akan direset.');const typed=prompt(`Backup akan diunduh. Ketik RESET untuk menghapus: ${keys.join(', ')}`);if(typed!=='RESET')return;downloadJSON(db,`backup-sebelum-reset-${today()}.json`);if(keys.includes('orders'))db.orders=[];if(keys.includes('trash'))db.trash=[];if(keys.includes('products'))db.products=structuredClone(defaults.products);if(keys.includes('activity'))db.activity=[];logActivity('Reset Data',keys.join(', '));renderAll();toast('Data terpilih telah direset.')};
 
-
+if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});} if('caches' in window){caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).catch(()=>{});}
 renderAll();
 
 
@@ -438,38 +416,4 @@ renderAll();
   addEventListener('resize',schedule);
   document.fonts?.ready?.then(schedule);
   schedule();
-})();
-
-
-/* ===== SHIROGANE Android Rebuild v2.0.0: robust touch actions ===== */
-(function installAndroidActionRouter(){
- if(window.__shiroganeActionRouterInstalled)return;
- window.__shiroganeActionRouterInstalled=true;
- const handleAction=(button)=>{
-  const id=button.dataset.orderId;
-  const action=button.dataset.orderAction;
-  if(!id||!action)return;
-  button.disabled=true;
-  setTimeout(()=>{button.disabled=false},450);
-  try{
-   if(action==='open')return window.editOrder(id);
-   if(action==='duplicate')return window.duplicateOrder(id);
-   if(action==='thermal')return window.printOrder(id,'thermal');
-   if(action==='print')return window.printOrder(id,'f4');
-   if(action==='delete')return window.moveToTrash(id);
-  }catch(err){console.error('Aksi pesanan gagal:',action,err);toast('Tombol gagal dijalankan. Coba muat ulang aplikasi.');}
- };
- document.addEventListener('click',event=>{
-  const actionButton=event.target.closest('[data-order-action]');
-  if(actionButton){event.preventDefault();event.stopPropagation();handleAction(actionButton);return;}
-  const toggle=event.target.closest('[data-bulk-toggle]');
-  if(toggle){window.toggleAllOrders(toggle.checked);return;}
-  const check=event.target.closest('[data-order-check]');
-  if(check){window.updateBulkCount();}
- },true);
- document.addEventListener('touchend',event=>{
-  const button=event.target.closest('[data-order-action]');
-  if(!button)return;
-  event.preventDefault();event.stopPropagation();handleAction(button);
- },{capture:true,passive:false});
 })();

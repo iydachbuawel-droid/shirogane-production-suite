@@ -140,7 +140,12 @@
   }
 
   function cleanRecoveryUrl() {
-    cleanRecoveryUrl();
+    try {
+      const url = new URL(window.location.href);
+      ['access_token','refresh_token','expires_in','expires_at','token_type','type','error','error_code','error_description','code'].forEach(key=>url.searchParams.delete(key));
+      url.hash='';
+      history.replaceState({},document.title,url.pathname+(url.search?'?'+url.searchParams.toString():''));
+    } catch {}
   }
 
   function friendlyAuthError(error) {
