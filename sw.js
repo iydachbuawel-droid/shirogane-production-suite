@@ -1,8 +1,8 @@
-const CACHE = 'shirogane-pwa-v1.8.3';
+const CACHE = 'shirogane-pwa-v2.0.0';
 const APP_SHELL = [
-  './', './index.html', './styles.css?v=1.8.3', './app.js?v=1.8.3',
-  './cloud-config.js?v=1.8.3', './cloud-sync.js?v=1.8.3',
-  './receipt-public.js?v=1.8.3', './receipt-tools.js?v=1.8.3',
+  './', './index.html', './styles.css?v=2.0.0', './app.js?v=2.0.0',
+  './cloud-config.js?v=2.0.0', './cloud-sync.js?v=2.0.0',
+  './receipt-public.js?v=2.0.0', './receipt-tools.js?v=2.0.0',
   './public-version.json', './receipt.html', './mobile-print.html', './manifest.webmanifest', './app-icon.png'
 ];
 

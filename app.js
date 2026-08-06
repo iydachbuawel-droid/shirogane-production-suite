@@ -227,15 +227,11 @@ window.printOrder=(id,type)=>{
  const o=db.orders.find(x=>x.id===id);if(!o)return;
  const mobileMode=window.matchMedia('(max-width: 820px)').matches||window.matchMedia('(display-mode: standalone)').matches||/Android|iPhone|iPad/i.test(navigator.userAgent);
  if(mobileMode){
-   try{
-     const payload={order:o,settings:db.settings,totals:orderTotals(o),type:type||'f4',savedAt:Date.now()};
-     localStorage.setItem('shirogane-mobile-print',JSON.stringify(payload));
-     window.location.assign('mobile-print.html?v=1.8.3');
-   }catch(err){
-     console.error('Gagal membuka preview cetak Android:',err);
-     toast('Preview cetak tidak dapat dibuka.');
-   }
-   return;
+  try{
+   localStorage.setItem('shirogane-mobile-print',JSON.stringify({invoice:o.invoice||'Nota-SHIROGANE',type:type||'f4',html:receiptHTML(o),savedAt:Date.now()}));
+   window.location.assign('./mobile-print.html?v=200');
+  }catch(err){console.error('Gagal membuka preview cetak Android:',err);toast('Preview cetak gagal dibuka.');}
+  return;
  }
  const w=window.open('','_blank');
  if(!w)return toast('Jendela preview diblokir.');
@@ -361,14 +357,14 @@ function nav(page){
 
 function renderAll(){renderDashboard();renderOrders();renderCustomers();renderProducts();renderReports();renderTrash();renderActivity();renderSettings();$('#brandNameSide').textContent=db.settings.business||'SHIROGANE';const mark=$('.brand-mark');if(mark)mark.innerHTML=db.settings.logo?`<img src="${db.settings.logo}" alt="Logo">`:esc((db.settings.business||'S').slice(0,1))}
 
-function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" onchange="toggleAllOrders(this.checked)"></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" onchange="updateBulkCount()"></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button class="btn small" onclick="editOrder('${o.id}')">Buka</button> <button class="btn small" onclick="duplicateOrder('${o.id}')">Duplikat</button> <button class="btn small" onclick="printOrder('${o.id}','thermal')">Thermal</button> <button class="btn small" onclick="printOrder('${o.id}','f4')">Print</button> <button class="btn small danger" onclick="moveToTrash('${o.id}')">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
+function ordersTable(arr,bulk=false){return `<div class="table-wrap"><table><thead><tr>${bulk?'<th><input type="checkbox" data-bulk-toggle></th>':''}<th>No. Nota</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Sisa</th><th>Status</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>{const t=orderTotals(o);return `<tr>${bulk?`<td><input class="order-check" type="checkbox" value="${o.id}" data-order-check></td>`:''}<td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${o.date}</td><td>${money(t.total)}</td><td>${money(t.balance)}</td><td><span class="badge ${statusClass(o.productionStatus)}">${o.productionStatus}</span></td><td class="actions-cell"><button type="button" class="btn small" data-order-action="open" data-order-id="${o.id}">Buka</button><button type="button" class="btn small" data-order-action="duplicate" data-order-id="${o.id}">Duplikat</button><button type="button" class="btn small" data-order-action="thermal" data-order-id="${o.id}">Thermal</button><button type="button" class="btn small" data-order-action="print" data-order-id="${o.id}">Print</button><button type="button" class="btn small danger" data-order-action="delete" data-order-id="${o.id}">Hapus</button></td></tr>`}).join('')}</tbody></table></div>`}
 
 function renderOrders(){const p=$('#page-orders');p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><input id="orderSearch" placeholder="Cari nomor nota atau pelanggan..." style="min-width:280px;padding:10px 12px;border:1px solid var(--line);border-radius:12px"><select id="statusFilter" class="btn"><option value="">Semua status</option>${['Baru Masuk','Diproses','Sablon','Jahit','Siap Diambil','Selesai'].map(x=>`<option>${x}</option>`).join('')}</select><span class="spacer"></span><button id="bulkDeleteBtn" class="btn danger" onclick="bulkTrash()" disabled>Hapus Terpilih (0)</button><button class="btn primary" onclick="startNew()">＋ Pesanan Baru</button></div><div id="ordersList" style="margin-top:16px"></div></div>`;const refresh=()=>{const q=$('#orderSearch').value.toLowerCase(),s=$('#statusFilter').value;const arr=[...db.orders].sort((a,b)=>b.createdAt-a.createdAt).filter(o=>(!q||o.invoice.toLowerCase().includes(q)||(o.customer||'').toLowerCase().includes(q))&&(!s||o.productionStatus===s));$('#ordersList').innerHTML=arr.length?ordersTable(arr,true):'<div class="empty">Pesanan tidak ditemukan.</div>'};$('#orderSearch').oninput=refresh;$('#statusFilter').onchange=refresh;refresh()}
 window.toggleAllOrders=checked=>{$$('.order-check').forEach(x=>x.checked=checked);updateBulkCount()};
 window.updateBulkCount=()=>{const n=$$('.order-check:checked').length,b=$('#bulkDeleteBtn');if(b){b.disabled=!n;b.textContent=`Hapus Terpilih (${n})`}};
 window.moveToTrash=id=>{const o=db.orders.find(x=>x.id===id);if(!o)return;if(!confirm(`Pindahkan nota ${o.invoice} ke Sampah?`))return;o.deletedAt=new Date().toISOString();db.trash.unshift(o);db.orders=db.orders.filter(x=>x.id!==id);logActivity('Hapus ke Sampah',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota dipindahkan ke Sampah.')};
 window.bulkTrash=()=>{const ids=$$('.order-check:checked').map(x=>x.value);if(!ids.length||!confirm(`Pindahkan ${ids.length} nota ke Sampah?`))return;ids.forEach(id=>{const o=db.orders.find(x=>x.id===id);if(o){o.deletedAt=new Date().toISOString();db.trash.unshift(o)}});db.orders=db.orders.filter(o=>!ids.includes(o.id));logActivity('Hapus banyak ke Sampah',`${ids.length} nota`);renderAll();toast(`${ids.length} nota dipindahkan ke Sampah.`)};
-window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return;const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`);renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
+window.duplicateOrder=id=>{const src=db.orders.find(x=>x.id===id);if(!src)return toast('Nota tidak ditemukan.');const copy=structuredClone(src);copy.id=uid();copy.invoice=nextInvoice();copy.date=today();copy.createdAt=Date.now();copy.productionStatus='Baru Masuk';copy.paymentStatus='Belum Bayar';copy.deposit=0;copy.notes=(copy.notes?copy.notes+'\n':'')+`Duplikat dari ${src.invoice}`;db.orders.push(copy);save();logActivity('Duplikat Nota',`${src.invoice} → ${copy.invoice}`);renderAll();toast(`Nota diduplikasi menjadi ${copy.invoice}.`)};
 
 function renderTrash(){const p=$('#page-trash');if(!p)return;const arr=[...db.trash].sort((a,b)=>String(b.deletedAt).localeCompare(String(a.deletedAt)));p.innerHTML=`<div class="panel" style="margin-top:0"><div class="toolbar"><h2>Sampah (${arr.length})</h2><span class="spacer"></span>${arr.length?'<button class="btn danger" onclick="emptyTrash()">Kosongkan Sampah</button>':''}</div>${arr.length?`<div class="table-wrap"><table><thead><tr><th>No. Nota</th><th>Pelanggan</th><th>Dihapus</th><th>Total</th><th>Aksi</th></tr></thead><tbody>${arr.map(o=>`<tr><td><strong>${o.invoice}</strong></td><td>${esc(o.customer||'-')}</td><td>${fmtDateTime(o.deletedAt)}</td><td>${money(orderTotals(o).total)}</td><td><button class="btn small" onclick="restoreOrder('${o.id}')">Pulihkan</button> <button class="btn small danger" onclick="permanentDelete('${o.id}')">Hapus Permanen</button></td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">Sampah kosong. Nota yang dihapus akan tersimpan di sini.</div>'}</div>`}
 window.restoreOrder=id=>{const o=db.trash.find(x=>x.id===id);if(!o)return;delete o.deletedAt;if(db.orders.some(x=>x.invoice===o.invoice))o.invoice=nextInvoice();db.orders.push(o);db.trash=db.trash.filter(x=>x.id!==id);logActivity('Pulihkan Nota',`${o.invoice} • ${o.customer||'-'}`);renderAll();toast('Nota berhasil dipulihkan.')};
@@ -404,7 +400,7 @@ window.saveAdminName=()=>{db.settings.adminName=($('#sAdminName').value||'Admin'
 window.exportOrdersCSV=()=>{const rows=[['Nomor Nota','Tanggal','Pelanggan','WhatsApp','Status','Total','Panjar','Sisa'],...db.orders.map(o=>{const t=orderTotals(o);return[o.invoice,o.date,o.customer||'',o.phone||'',o.productionStatus,t.total,o.deposit||0,t.balance]})];const csv='\ufeff'+rows.map(r=>r.map(v=>'"'+String(v).replaceAll('"','""')+'"').join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`pesanan-shirogane-${today()}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);logActivity('Export CSV',`${db.orders.length} pesanan`)};
 window.resetSelectedData=()=>{const keys=[];if($('#rOrders')?.checked)keys.push('orders');if($('#rTrash')?.checked)keys.push('trash');if($('#rProducts')?.checked)keys.push('products');if($('#rActivity')?.checked)keys.push('activity');if(!keys.length)return toast('Pilih data yang akan direset.');const typed=prompt(`Backup akan diunduh. Ketik RESET untuk menghapus: ${keys.join(', ')}`);if(typed!=='RESET')return;downloadJSON(db,`backup-sebelum-reset-${today()}.json`);if(keys.includes('orders'))db.orders=[];if(keys.includes('trash'))db.trash=[];if(keys.includes('products'))db.products=structuredClone(defaults.products);if(keys.includes('activity'))db.activity=[];logActivity('Reset Data',keys.join(', '));renderAll();toast('Data terpilih telah direset.')};
 
-if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(rs=>rs.forEach(r=>r.unregister())).catch(()=>{});} if('caches' in window){caches.keys().then(ks=>Promise.all(ks.map(k=>caches.delete(k)))).catch(()=>{});}
+
 renderAll();
 
 
@@ -442,4 +438,38 @@ renderAll();
   addEventListener('resize',schedule);
   document.fonts?.ready?.then(schedule);
   schedule();
+})();
+
+
+/* ===== SHIROGANE Android Rebuild v2.0.0: robust touch actions ===== */
+(function installAndroidActionRouter(){
+ if(window.__shiroganeActionRouterInstalled)return;
+ window.__shiroganeActionRouterInstalled=true;
+ const handleAction=(button)=>{
+  const id=button.dataset.orderId;
+  const action=button.dataset.orderAction;
+  if(!id||!action)return;
+  button.disabled=true;
+  setTimeout(()=>{button.disabled=false},450);
+  try{
+   if(action==='open')return window.editOrder(id);
+   if(action==='duplicate')return window.duplicateOrder(id);
+   if(action==='thermal')return window.printOrder(id,'thermal');
+   if(action==='print')return window.printOrder(id,'f4');
+   if(action==='delete')return window.moveToTrash(id);
+  }catch(err){console.error('Aksi pesanan gagal:',action,err);toast('Tombol gagal dijalankan. Coba muat ulang aplikasi.');}
+ };
+ document.addEventListener('click',event=>{
+  const actionButton=event.target.closest('[data-order-action]');
+  if(actionButton){event.preventDefault();event.stopPropagation();handleAction(actionButton);return;}
+  const toggle=event.target.closest('[data-bulk-toggle]');
+  if(toggle){window.toggleAllOrders(toggle.checked);return;}
+  const check=event.target.closest('[data-order-check]');
+  if(check){window.updateBulkCount();}
+ },true);
+ document.addEventListener('touchend',event=>{
+  const button=event.target.closest('[data-order-action]');
+  if(!button)return;
+  event.preventDefault();event.stopPropagation();handleAction(button);
+ },{capture:true,passive:false});
 })();

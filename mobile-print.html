@@ -2,38 +2,30 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <meta name="theme-color" content="#111827">
 <title>Preview Nota SHIROGANE</title>
+<link rel="stylesheet" href="styles.css?v=2.0.0">
 <style>
-*{box-sizing:border-box}html,body{margin:0;background:#e5e7eb;color:#111827;font-family:Arial,sans-serif}.toolbar{position:sticky;top:0;z-index:20;display:flex;gap:8px;align-items:center;justify-content:center;padding:12px;background:#111827}.toolbar button{border:0;border-radius:10px;padding:12px 14px;font-weight:800}.toolbar .print{background:#fff;color:#111827}.toolbar .back{background:#374151;color:#fff}.page{width:min(100%,794px);margin:12px auto;background:#fff;padding:18px;box-shadow:0 10px 35px rgba(0,0,0,.18)}.head{display:flex;gap:12px;align-items:center;justify-content:center;text-align:center;border-bottom:3px solid #111827;padding-bottom:12px}.logo{width:58px;height:58px;object-fit:contain}.head h1{margin:0;font-size:22px}.head p{margin:3px 0;color:#64748b;font-size:11px}.meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:12px 0;font-size:11px}.meta div{padding:8px;border:1px solid #e2e8f0;border-radius:8px}.table-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:9px}table{border-collapse:collapse;width:100%;min-width:760px;font-size:10px}th,td{border-bottom:1px solid #e2e8f0;padding:6px 4px;text-align:center}th:first-child,td:first-child{text-align:left}.summary{width:min(420px,100%);margin:12px 0 0 auto}.row{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:12px}.row.total{border-top:2px solid #cbd5e1;margin-top:4px;padding-top:10px;font-size:17px;font-weight:900}.row.balance{display:block;text-align:center;background:#111827;color:#fff;border-radius:10px;padding:12px;margin-top:5px}.row.balance span{display:block;font-size:14px}.row.balance b{display:block;font-size:28px;white-space:nowrap}.payment{margin-top:12px;padding:12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}.payment small,.payment strong,.payment span{display:block}.payment strong{font-size:18px;overflow-wrap:anywhere}.designs{display:grid;grid-template-columns:1fr;gap:8px;margin-top:12px}.design{border:1px solid #e2e8f0;border-radius:10px;padding:6px}.design img{display:block;width:100%;max-height:320px;object-fit:contain}.foot{text-align:center;margin-top:14px;color:#64748b;font-size:10px}.error{padding:60px 20px;text-align:center;color:#b91c1c}.thermal .page{width:80mm;padding:4mm;margin:0 auto;box-shadow:none}.thermal table{min-width:0;font-size:8px}.thermal .head h1{font-size:17px}.thermal .row.balance b{font-size:22px}@media print{html,body{background:#fff}.toolbar{display:none!important}.page{margin:0 auto;box-shadow:none;padding:0;width:100%}.thermal .page{width:80mm;padding:0} @page{margin:8mm}.thermal{@page{size:80mm auto;margin:3mm}}}
+*{box-sizing:border-box}body{margin:0;background:#e5e7eb;font-family:Inter,Segoe UI,Arial,sans-serif;color:#111827}.mobile-print-bar{position:sticky;top:0;z-index:50;display:flex;gap:8px;align-items:center;padding:10px;background:#111827}.mobile-print-bar button{flex:1;border:0;border-radius:10px;padding:12px 10px;font-weight:800;background:#fff;color:#111827}.mobile-print-bar .primary{background:#d4a84b}.mobile-sheet{width:min(100%,900px);margin:12px auto;background:#fff;padding:14px;min-height:60vh}.mobile-sheet.thermal{width:80mm;max-width:100%;padding:4mm}.message{padding:50px 20px;text-align:center;color:#64748b}@media print{.mobile-print-bar{display:none!important}body{background:#fff}.mobile-sheet{margin:0!important;padding:0!important;box-shadow:none!important}.mobile-sheet.thermal{width:80mm!important;padding:2mm!important}@page{margin:8mm}.mobile-sheet.thermal~*{display:none}}
 </style>
 </head>
 <body>
-<div class="toolbar"><button class="back" id="backBtn">← Kembali</button><button class="print" id="printBtn">🖨 Cetak / Simpan PDF</button></div>
-<main id="root" class="page"><div style="padding:50px;text-align:center">Memuat nota...</div></main>
+<div class="mobile-print-bar no-print"><button type="button" id="backBtn">← Kembali</button><button type="button" class="primary" id="printBtn">🖨 Cetak / Simpan PDF</button></div>
+<main id="sheet" class="mobile-sheet"><div class="message">Memuat nota…</div></main>
 <script>
-(()=>{
- const root=document.getElementById('root');
- const esc=(v='')=>String(v).replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]));
- const money=n=>'Rp'+Number(n||0).toLocaleString('id-ID');
- const sizes=['XS','S','M','L','XL','2XL','3XL','4XL','5XL'];
- let payload;
- try{payload=JSON.parse(localStorage.getItem('shirogane-mobile-print')||'null')}catch{}
- document.getElementById('backBtn').onclick=()=>history.length>1?history.back():location.replace('index.html?v=1.8.3');
- document.getElementById('printBtn').onclick=()=>{setTimeout(()=>window.print(),30)};
- if(!payload?.order){root.innerHTML='<div class="error"><h2>Nota tidak ditemukan</h2><p>Kembali ke aplikasi lalu tekan tombol Print lagi.</p></div>';return;}
- if(payload.type==='thermal')document.body.classList.add('thermal');
- const o=payload.order,s=payload.settings||{},t=payload.totals||{};
- const logo=s.logo?`<img class="logo" src="${s.logo}" alt="Logo">`:'';
- root.innerHTML=`<div class="head">${logo}<div><h1>${esc(s.business||'SHIROGANE')}</h1><p>${esc(s.subtitle||'Production Suite')}</p><p>${esc(s.address||'')}${s.phone?' • '+esc(s.phone):''}</p></div></div>
- <div class="meta"><div><b>No.</b><br>${esc(o.invoice||'-')}</div><div><b>Tanggal</b><br>${esc(o.date||'-')}</div><div><b>Pelanggan</b><br>${esc(o.customer||'-')}</div><div><b>Selesai</b><br>${esc(o.dueDate||'-')}</div></div>
- <div class="table-wrap"><table><thead><tr><th>Barang</th>${sizes.map(x=>`<th>${x}</th>`).join('')}<th>Qty</th><th>Harga</th><th>Jumlah</th></tr></thead><tbody>${(o.items||[]).map(it=>{const q=sizes.reduce((a,x)=>a+(Number((it.sizes||{})[x])||0),0);return `<tr><td><b>${esc(it.name||'')}</b></td>${sizes.map(x=>`<td>${Number((it.sizes||{})[x])||''}</td>`).join('')}<td>${q}</td><td>${money(it.price)}</td><td>${money(q*Number(it.price||0))}</td></tr>`}).join('')}</tbody></table></div>
- <div class="summary"><div class="row"><span>Subtotal barang (${Number(t.qty||0)} pcs)</span><b>${money(t.subtotal)}</b></div><div class="row"><span>Tambahan ukuran</span><b>${money(t.extra)}</b></div><div class="row"><span>Diskon</span><b>-${money(t.discount)}</b></div><div class="row total"><span>Total Tagihan</span><b>${money(t.total)}</b></div><div class="row"><span>Panjar</span><b>${money(t.deposit)}</b></div><div class="row balance"><span>Sisa Pembayaran</span><b>${money(t.balance)}</b></div></div>
- ${(s.account||s.accountName)?`<div class="payment"><small>Transfer ke ${esc(s.bank||'Bank')}</small><strong>${esc(s.account||'-')}</strong><span>a.n. ${esc(s.accountName||'-')}</span></div>`:''}
- ${o.notes?`<p><b>Catatan:</b> ${esc(o.notes)}</p>`:''}
- ${(o.images||[]).length?`<div class="designs">${o.images.slice(0,3).map(im=>`<div class="design"><img src="${im.data}" alt="Desain"></div>`).join('')}</div>`:''}
- <div class="foot">Terima kasih telah mempercayakan pesanan kepada ${esc(s.business||'SHIROGANE')}.</div>`;
+(function(){
+ const raw=localStorage.getItem('shirogane-mobile-print');
+ const sheet=document.getElementById('sheet');
+ try{
+  const payload=JSON.parse(raw||'null');
+  if(!payload||!payload.html)throw new Error('Data nota tidak ditemukan');
+  document.title=(payload.invoice||'Nota SHIROGANE')+' - Preview';
+  sheet.classList.toggle('thermal',payload.type==='thermal');
+  sheet.innerHTML=payload.html;
+ }catch(err){sheet.innerHTML='<div class="message"><b>Nota tidak dapat dibuka.</b><br>Silakan kembali dan tekan Print lagi.</div>';console.error(err)}
+ document.getElementById('backBtn').addEventListener('click',()=>{history.length>1?history.back():location.replace('./index.html?v=200')});
+ document.getElementById('printBtn').addEventListener('click',()=>{setTimeout(()=>window.print(),50)});
 })();
 </script>
 </body>
