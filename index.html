@@ -7,14 +7,14 @@
   <title>SHIROGANE Production Suite</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="app-icon.png" />
-  <link rel="stylesheet" href="styles.css?v=3.0.3" />
+  <link rel="stylesheet" href="styles.css?v=3.0.11" />
 </head>
 <body class="app-loading">
   <div id="appSplash" class="app-splash" role="status" aria-live="polite">
     <div class="splash-glow splash-glow-one"></div>
     <div class="splash-glow splash-glow-two"></div>
     <div class="splash-content">
-      <div class="splash-logo-ring"><div class="splash-logo">S</div></div>
+      <div class="splash-logo-ring"><img class="splash-logo-img" src="app-icon.png" alt="SHIROGANE" /></div>
       <h1>SHIROGANE</h1>
       <p>Production Suite</p>
       <div class="splash-loader"><span></span></div>
@@ -39,7 +39,7 @@
         <button data-page="settings">⚙ Pengaturan</button>
       </nav>
       <div class="sidebar-footer">
-        <div class="storage-status"><span class="status-dot"></span> Offline • Data tersimpan di perangkat</div>
+        <div class="storage-status" id="storageStatus"><span class="status-dot"></span><span id="storageStatusText">Memeriksa koneksi...</span></div>
         <div class="license-branding">
           <strong>By SHIROGANE®</strong>
           <span>Production Suite</span>
@@ -68,17 +68,17 @@
   <div id="toast" class="toast"></div>
   <input type="file" id="restoreInput" accept="application/json" hidden />
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="storage.js?v=3.0.3"></script>
-  <script src="cloud-config.js?v=3.0.3"></script>
-  <script src="receipt-public.js?v=3.0.3"></script>
+  <script src="storage.js?v=3.0.11"></script>
+  <script src="cloud-config.js?v=3.0.11"></script>
+  <script src="receipt-public.js?v=3.0.11"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="preview-pdf.js?v=3.0.3"></script>
-  <script src="app.js?v=3.0.3"></script>
-  <script src="cloud-sync.js?v=3.0.3"></script>
-  <script src="receipt-tools.js?v=3.0.3"></script>
-  <script src="v3-features.js?v=3.0.3"></script>
-  <script src="exit-confirm.js?v=3.0.3"></script>
+  <script src="preview-pdf.js?v=3.0.11"></script>
+  <script src="app.js?v=3.0.11"></script>
+  <script src="cloud-sync.js?v=3.0.11"></script>
+  <script src="receipt-tools.js?v=3.0.11"></script>
+  <script src="v3-features.js?v=3.0.11"></script>
+  <script src="exit-confirm.js?v=3.0.11"></script>
 <script>
 // Mode stabil: nonaktifkan Service Worker lama agar file terbaru selalu dimuat.
 if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(list=>list.forEach(r=>r.unregister()));

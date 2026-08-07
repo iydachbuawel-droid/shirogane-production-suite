@@ -1,0 +1,12 @@
+cloudflare-worker.js
+wrangler.jsonc
+DEPLOY-CLOUDFLARE.bat
+BACA-SAYA-v3.0.10.txt
+README-UPLOAD.txt
+BACA-SAYA-v3.0.7.txt
+BACA-SAYA-v3.0.8.txt
+BACA-SAYA-v3.0.9.txt
+SUPABASE-v3.0.6-SETUP.sql
+**/node_modules
+**/.git
+**/.DS_Store

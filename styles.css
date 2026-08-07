@@ -735,3 +735,5 @@ body.exit-confirm-open{overflow:hidden}
 .sg-stability-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.sg-stability-head h2{margin-bottom:5px}.sg-stability-head p{margin:0;color:#64748b}.sg-version-badge{padding:6px 10px;border-radius:999px;background:#111827;color:#fff;font-size:12px;font-weight:800;white-space:nowrap}.sg-backup-status{margin:16px 0;padding:11px 13px;border:1px solid #dbe4f0;border-radius:12px;background:#fff;color:#475569;font-size:13px}.sg-stability-actions{display:flex;flex-wrap:wrap;gap:9px}
 @keyframes sgFadeIn{from{opacity:0}to{opacity:1}}@keyframes sgCardIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @media(max-width:640px){.sg-system-actions{grid-template-columns:1fr}.sg-stability-actions{display:grid;grid-template-columns:1fr}.sg-stability-actions .btn{width:100%}.sg-stability-head{align-items:center}.sg-stability-head p{font-size:13px}}
+
+.splash-logo-img{width:100%;height:100%;display:block;object-fit:cover;border-radius:29px;background:#111827;}

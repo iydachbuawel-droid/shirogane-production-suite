@@ -1,8 +1,8 @@
 (() => {
   'use strict';
 
-  const VERSION = '1.7.0';
-  const PUBLIC_APP_URL = 'https://iydachbuawel-droid.github.io/shirogane-production-suite/';
+  const VERSION = '3.0.7';
+  const PUBLIC_APP_URL = new URL('./', window.location.href).toString();
   const PUBLIC_VERSION_URL = new URL('public-version.json', PUBLIC_APP_URL).toString();
   const A4 = { width: 595.28, height: 841.89, margin: 20 };
 

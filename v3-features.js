@@ -1,15 +1,31 @@
-/* SHIROGANE Stability Features v3.0.0
+/* SHIROGANE Stability Features v3.0.11
  * Splash, exit confirmation, automatic update, automatic backup, restore.
  */
 (() => {
   'use strict';
 
-  const APP_VERSION = '3.0.1';
+  const APP_VERSION = '3.0.11';
   const BACKUP_DB = 'shirogane-auto-backups';
   const BACKUP_STORE = 'backups';
   const MAX_BACKUPS = 10;
   let backupTimer = null;
   let updateChecked = false;
+  let availableVersion = null;
+
+  // Bersihkan penanda update lama segera setelah script versi baru benar-benar termuat.
+  try {
+    const staleTarget = localStorage.getItem('shirogane-update-target');
+    if (staleTarget) {
+      const partsA = APP_VERSION.split('.').map(Number);
+      const partsB = String(staleTarget).split('.').map(Number);
+      let cmp = 0;
+      for (let i = 0; i < Math.max(partsA.length, partsB.length); i++) {
+        const diff = (partsA[i] || 0) - (partsB[i] || 0);
+        if (diff) { cmp = diff; break; }
+      }
+      if (cmp >= 0) localStorage.removeItem('shirogane-update-target');
+    }
+  } catch {}
 
   const clone = value => {
     try { return structuredClone(value); }
@@ -138,6 +154,7 @@
       </div>`);
     modal = document.getElementById('sgUpdateModal');
     document.getElementById('sgUpdateLater').onclick = () => {
+      if (availableVersion) sessionStorage.setItem('shirogane-update-later', availableVersion);
       modal.classList.remove('show');
       modal.setAttribute('aria-hidden', 'true');
     };
@@ -155,7 +172,11 @@
           await Promise.all(keys.map(key => caches.delete(key)));
         }
       } catch {}
+      // Remember which version is expected. The new script clears this marker
+      // after it is actually loaded, preventing an endless update loop.
+      if (availableVersion) localStorage.setItem('shirogane-update-target', availableVersion);
       const url = new URL(location.href);
+      url.searchParams.set('v', availableVersion || Date.now().toString());
       url.searchParams.set('update', Date.now().toString());
       location.replace(url.toString());
     };
@@ -179,13 +200,27 @@
       const response = await fetch(`public-version.json?t=${Date.now()}`, { cache: 'no-store' });
       if (!response.ok) throw new Error('Versi publik tidak dapat dibaca.');
       const info = await response.json();
-      if (compareVersions(info.version, APP_VERSION) <= 0) {
-        if (!silent && typeof toast === 'function') toast('Aplikasi sudah versi terbaru.');
+      const remoteVersion = String(info.version || '').trim();
+      if (!remoteVersion) throw new Error('Nomor versi publik tidak valid.');
+
+      // If this JavaScript version has really loaded, clear any old update marker.
+      const target = localStorage.getItem('shirogane-update-target');
+      if (target && compareVersions(APP_VERSION, target) >= 0) {
+        localStorage.removeItem('shirogane-update-target');
+      }
+
+      if (compareVersions(remoteVersion, APP_VERSION) <= 0) {
+        availableVersion = null;
+        sessionStorage.removeItem('shirogane-update-later');
+        if (!silent && typeof toast === 'function') toast(`Aplikasi sudah versi terbaru (v${APP_VERSION}).`);
         return;
       }
+
+      availableVersion = remoteVersion;
+      if (silent && sessionStorage.getItem('shirogane-update-later') === remoteVersion) return;
       const modal = ensureUpdateModal();
       const notes = info.notes ? `<br><small>${String(info.notes).replace(/[<>]/g, '')}</small>` : '';
-      document.getElementById('sgUpdateText').innerHTML = `Versi <b>${info.version}</b> tersedia.${notes}`;
+      document.getElementById('sgUpdateText').innerHTML = `Versi <b>${remoteVersion}</b> tersedia.${notes}`;
       modal.classList.add('show');
       modal.setAttribute('aria-hidden', 'false');
     } catch (error) {

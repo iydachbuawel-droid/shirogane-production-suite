@@ -48,6 +48,11 @@
           order.images = order.images.map(im => ({
             id: im.id,
             name: im.name,
+            url: im.url || '',
+            path: im.path || '',
+            width: im.width || 0,
+            height: im.height || 0,
+            optimizedBytes: im.optimizedBytes || 0,
             storedInIndexedDB: true
           }));
         }
@@ -114,6 +119,8 @@
           if (!validImageData(copy.data) && copy.id && currentById.has(copy.id)) {
             copy.data = currentById.get(copy.id);
             delete copy.storedInIndexedDB;
+          } else if (!validImageData(copy.data) && validImageData(copy.url)) {
+            copy.data = copy.url;
           }
           return copy;
         });

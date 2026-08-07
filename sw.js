@@ -1,4 +1,10 @@
-const CACHE='shirogane-disabled-v2.2.1';
-self.addEventListener('install',e=>self.skipWaiting());
-self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
-self.addEventListener('fetch',e=>{ if(e.request.method==='GET') e.respondWith(fetch(e.request)); });
+const CACHE = 'shirogane-v3.0.11';
+self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
+self.addEventListener('activate', event => event.waitUntil(
+  caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
+    .then(() => self.clients.claim())
+));
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(fetch(event.request, { cache: 'no-store' }).catch(() => caches.match(event.request)));
+});

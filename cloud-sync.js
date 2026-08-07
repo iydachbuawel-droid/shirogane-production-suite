@@ -2,6 +2,9 @@
   'use strict';
 
   const TABLE = 'shirogane_app_state';
+  const IMAGE_BUCKET = 'shirogane-images';
+  const DELETE_QUEUE_KEY = 'shirogane-cloud-image-delete-queue';
+  const DIRTY_KEY = 'shirogane-cloud-local-dirty';
   const META_KEY = 'shirogane-cloud-meta';
   const AUTH_VERSION = '1.8.0';
   const cfg = window.SHIROGANE_CLOUD_CONFIG || {};
@@ -9,6 +12,9 @@
   let session = null;
   let syncTimer = null;
   let syncing = false;
+  let suppressPush = false;
+  let realtimeChannel = null;
+  let localDirty = localStorage.getItem(DIRTY_KEY) === '1';
   let lastMessage = 'Cloud belum dikonfigurasi';
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -38,6 +44,17 @@
     if (btn) {
       btn.textContent = `☁ ${text}`;
       btn.className = `sg-cloud-fab ${mode}`;
+    }
+    const side = document.getElementById('storageStatus');
+    const sideText = document.getElementById('storageStatusText');
+    if (side && sideText) {
+      let label = text;
+      if (/^Tersinkron$/i.test(text)) label = 'Online • Tersinkron';
+      else if (/Menyimpan|Mengambil|Memeriksa|Sinkron/i.test(text) && !/Gagal/i.test(text)) label = `Menyinkronkan • ${text}`;
+      else if (/Login/i.test(text)) label = 'Cloud • Login diperlukan';
+      else if (/Gagal|Offline|Library/i.test(text)) label = `Offline • Data aman di perangkat`;
+      sideText.textContent = label;
+      side.dataset.mode = mode || (/Gagal|Offline/i.test(text) ? 'offline' : '');
     }
   }
 
@@ -251,6 +268,143 @@
     return String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   }
 
+
+  function dataUrlToBlob(dataUrl) {
+    const parts = String(dataUrl || '').split(',');
+    if (parts.length < 2) return null;
+    const mime = (parts[0].match(/data:([^;]+)/) || [])[1] || 'image/webp';
+    const bin = atob(parts[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return new Blob([bytes], { type: mime });
+  }
+
+  function publicImageUrl(path) {
+    if (!client || !path) return '';
+    try {
+      const { data } = client.storage.from(IMAGE_BUCKET).getPublicUrl(path);
+      return data?.publicUrl || '';
+    } catch { return ''; }
+  }
+
+  async function uploadOneImage(image) {
+    if (!session || !image) return image;
+
+    // Jika gambar sudah ada di Storage, selalu bangun kembali URL publiknya.
+    // image.data tetap diisi URL untuk kompatibilitas dengan SHIROGANE PC lama
+    // yang membaca image.data, bukan image.url/path.
+    if (image.path) {
+      const publicUrl = publicImageUrl(image.path);
+      if (publicUrl) {
+        image.url = publicUrl;
+        image.data = publicUrl;
+      }
+      if (!String(image.data || '').startsWith('data:image/')) return image;
+    }
+
+    if (!String(image.data || '').startsWith('data:image/')) return image;
+    const blob = dataUrlToBlob(image.data);
+    if (!blob) return image;
+    const ext = blob.type.includes('png') ? 'png' : blob.type.includes('jpeg') ? 'jpg' : 'webp';
+    const path = `${session.user.id}/${image.id || crypto.randomUUID()}.${ext}`;
+    const { error } = await client.storage.from(IMAGE_BUCKET).upload(path, blob, { upsert: true, contentType: blob.type, cacheControl: '31536000' });
+    if (error) throw error;
+    image.path = path;
+    const publicUrl = publicImageUrl(path);
+    if (publicUrl) {
+      image.url = publicUrl;
+      image.data = publicUrl;
+    }
+    return image;
+  }
+
+  async function prepareImagesForCloud() {
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (db?.[collectionName] || [])) {
+        for (const image of (order.images || [])) await uploadOneImage(image);
+      }
+    }
+  }
+
+  function cloudStateFromLocal() {
+    const state = structuredClone(db || {});
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (state[collectionName] || [])) {
+        order.images = (order.images || []).map(image => {
+          const copy = { ...image };
+          delete copy.original;
+
+          // Jangan kirim base64 ke database cloud. Tetapi pertahankan URL Storage
+          // pada BOTH data + url agar Android baru dan PC lama membaca gambar sama.
+          const durableUrl = copy.path ? publicImageUrl(copy.path) : (/^https?:\/\//i.test(String(copy.url || copy.data || '')) ? String(copy.url || copy.data) : '');
+          copy.url = durableUrl;
+          copy.data = durableUrl;
+          return copy;
+        });
+      }
+    }
+    return state;
+  }
+
+
+  async function hydrateCloudState(state) {
+    const result = structuredClone(state || {});
+    const all = [];
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (result[collectionName] || [])) {
+        for (const image of (order.images || [])) if (image?.path) all.push(image);
+      }
+    }
+    await Promise.all(all.map(async image => {
+      // v3.0.11 memakai bucket public agar URL gambar permanen dan bisa dibaca PC.
+      const publicUrl = publicImageUrl(image.path);
+      if (publicUrl) {
+        image.url = publicUrl;
+        image.data = publicUrl;
+        return;
+      }
+      // Fallback untuk bucket lama/private selama migrasi belum dijalankan.
+      const { data, error } = await client.storage.from(IMAGE_BUCKET).createSignedUrl(image.path, 60 * 60 * 24 * 7);
+      if (!error && data?.signedUrl) {
+        image.url = data.signedUrl;
+        image.data = data.signedUrl;
+      }
+    }));
+    return result;
+  }
+
+  function readDeleteQueue() {
+    try { return JSON.parse(localStorage.getItem(DELETE_QUEUE_KEY) || '[]'); } catch { return []; }
+  }
+  function writeDeleteQueue(list) { localStorage.setItem(DELETE_QUEUE_KEY, JSON.stringify([...new Set(list.filter(Boolean))])); }
+  function queueImageDeletes(images = []) {
+    const paths = images.map(x => x?.path).filter(Boolean);
+    if (!paths.length) return;
+    writeDeleteQueue(readDeleteQueue().concat(paths));
+    flushImageDeletes().catch(() => {});
+  }
+  async function flushImageDeletes() {
+    if (!client || !session || !navigator.onLine) return;
+    const paths = readDeleteQueue();
+    if (!paths.length) return;
+    const { error } = await client.storage.from(IMAGE_BUCKET).remove(paths);
+    if (!error) writeDeleteQueue([]);
+  }
+
+  async function startRealtime() {
+    if (!client || !session) return;
+    if (realtimeChannel) { try { await client.removeChannel(realtimeChannel); } catch {} realtimeChannel = null; }
+    realtimeChannel = client.channel(`shirogane-${session.user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: TABLE, filter: `user_id=eq.${session.user.id}` }, async payload => {
+        const remoteUpdated = payload?.new?.updated_at || '';
+        const meta = readMeta();
+        if (syncing || (remoteUpdated && meta.updatedAt === remoteUpdated)) return;
+        if (localDirty) { setStatus('Konflik • buka Cloud', 'busy'); return; }
+        await pullCloud(true, true);
+      })
+      .subscribe();
+  }
+
   async function fetchCloudRow() {
     if (!session) return { data: null, error: new Error('Belum login') };
     return client.from(TABLE).select('state,updated_at').eq('user_id', session.user.id).maybeSingle();
@@ -261,10 +415,14 @@
     if(window.SHIROGANE_STORAGE_READY) await window.SHIROGANE_STORAGE_READY;
     syncing = true; setStatus('Menyimpan...', 'busy');
     try {
-      const payload = structuredClone(db);
+      await prepareImagesForCloud();
+      if (window.ShiroganeStorage) await window.ShiroganeStorage.saveDB(db);
+      await flushImageDeletes();
+      const payload = cloudStateFromLocal();
       const { data, error } = await client.from(TABLE).upsert({ user_id: session.user.id, state: payload }, { onConflict: 'user_id' }).select('updated_at').single();
       if (error) throw error;
       writeMeta({ updatedAt: data.updated_at, userId: session.user.id });
+      localDirty = false; localStorage.removeItem(DIRTY_KEY);
       setStatus('Tersinkron', 'online');
       if (showToast && typeof toast === 'function') toast('Data berhasil dikirim ke cloud.');
       return 'Data perangkat berhasil dikirim ke cloud.';
@@ -275,7 +433,7 @@
     } finally { syncing = false; }
   }
 
-  async function pullCloud(force = false) {
+  async function pullCloud(force = false, fromRealtime = false) {
     if (!session || syncing) return 'Cloud belum siap.';
     syncing = true; setStatus('Mengambil...', 'busy');
     try {
@@ -286,9 +444,12 @@
         return 'Belum ada data di cloud.';
       }
       if (!force && localHasData(db)) return 'Data lokal tidak ditimpa otomatis.';
-      db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, data.state) : data.state;
+      suppressPush = true;
+      const hydratedState = await hydrateCloudState(data.state);
+      db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, hydratedState) : hydratedState;
       if (typeof normalizeSettings === 'function') normalizeSettings();
       if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
+      suppressPush = false;
       writeMeta({ updatedAt: data.updated_at, userId: session.user.id });
       if (typeof renderAll === 'function') renderAll();
       setStatus('Tersinkron', 'online');
@@ -298,13 +459,13 @@
       console.error('Cloud pull gagal:', err);
       setStatus('Gagal sinkron');
       return `Gagal mengambil: ${err.message || err}`;
-    } finally { syncing = false; }
+    } finally { syncing = false; suppressPush = false; }
   }
 
   async function smartSync(interactive = false) {
     if (!session) return 'Belum login.';
     const { data, error } = await fetchCloudRow();
-    if (error) return `Gagal membaca cloud: ${error.message}`;
+    if (error) { setStatus('Gagal sinkron'); return `Gagal membaca cloud: ${error.message}`; }
     if (!data?.state) return pushCloud(interactive);
 
     const localData = localHasData(db);
@@ -344,9 +505,12 @@
         try {
           if (typeof downloadJSON === 'function') downloadJSON(db, `backup-sebelum-cloud-${new Date().toISOString().slice(0,10)}.json`);
         } catch {}
-        db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, cloudRow.state) : cloudRow.state;
+        const hydratedState = await hydrateCloudState(cloudRow.state);
+        suppressPush = true;
+        db = window.ShiroganeStorage?.mergeMissingImages ? window.ShiroganeStorage.mergeMissingImages(db, hydratedState) : hydratedState;
         if (typeof normalizeSettings === 'function') normalizeSettings();
         if(typeof save==='function') save(); else if(window.ShiroganeStorage) window.ShiroganeStorage.saveDB(db).catch(console.error);
+        suppressPush = false; localDirty = false; localStorage.removeItem(DIRTY_KEY);
         writeMeta({ updatedAt: cloudRow.updated_at, userId: session.user.id });
         if (typeof renderAll === 'function') renderAll();
         closeModal(); setStatus('Tersinkron', 'online'); resolve('Data cloud dipakai.');
@@ -356,9 +520,10 @@
   }
 
   function schedulePush() {
-    if (!session) return;
+    if (!session || suppressPush) return;
     clearTimeout(syncTimer);
-    syncTimer = setTimeout(() => pushCloud(false), 1200);
+    if (!navigator.onLine) { setStatus('Offline'); return; }
+    syncTimer = setTimeout(() => pushCloud(false), 350);
   }
 
   function wrapLocalSave() {
@@ -367,6 +532,7 @@
     const localSave = save;
     save = function () {
       localSave();
+      if (!suppressPush) { localDirty = true; localStorage.setItem(DIRTY_KEY, '1'); }
       schedulePush();
     };
   }
@@ -401,17 +567,36 @@
         setStatus('Memeriksa cloud...', 'busy');
         await sleep(100);
         await smartSync(false);
-      } else setStatus('Login Cloud');
+        await startRealtime();
+        await flushImageDeletes();
+      } else { if (realtimeChannel) { try { await client.removeChannel(realtimeChannel); } catch {} realtimeChannel = null; } setStatus('Login Cloud'); }
     });
     if (recoveryRequested && session) {
       setStatus('Ganti Password', 'busy');
       setTimeout(openNewPasswordModal, 80);
     } else if (session) {
       await smartSync(false);
+      await startRealtime();
+      await flushImageDeletes();
     } else {
       setStatus('Login Cloud');
     }
   }
+
+
+  window.ShiroganeCloud = {
+    queueImageDeletes,
+    syncNow: () => smartSync(true),
+    pushNow: () => pushCloud(true),
+    pullNow: () => pullCloud(true)
+  };
+  window.addEventListener('offline', () => setStatus('Offline'));
+  window.addEventListener('online', async () => {
+    if (!session) return setStatus('Login Cloud');
+    setStatus('Menyinkronkan...', 'busy');
+    await pushCloud(false);
+    await startRealtime();
+  });
 
   addStyles();
   ensureButton();

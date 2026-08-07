@@ -1,1 +1,4 @@
-{"version":"3.0.3","updated":"2026-08-06"}
+{
+  "version": "3.0.11",
+  "notes": "Cloudflare Worker TWA Digital Asset Links fix"
+}
