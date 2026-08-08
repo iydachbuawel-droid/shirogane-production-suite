@@ -394,8 +394,29 @@ window.resetCurrentBankLogo=()=>{
  if(!name)return toast('Pilih nama bank terlebih dahulu.');
  db.settings.customBankLogos=db.settings.customBankLogos||{};delete db.settings.customBankLogos[name.toUpperCase()];save();renderSettings();toast('Logo bawaan dipakai kembali.');
 };
-async function handleBusinessLogo(e){const f=e.target.files?.[0];if(!f)return;if(f.size>1_500_000)return toast('Logo terlalu besar. Maksimal 1,5 MB.');db.settings.logo=await fileData(f);save();renderAll();toast('Logo usaha berhasil dipasang.')}
-window.removeBusinessLogo=()=>{db.settings.logo='';save();renderAll();toast('Logo usaha dihapus.')};
+async function handleBusinessLogo(e){
+ const f=e.target.files?.[0];if(!f)return;
+ if(f.size>1_500_000)return toast('Logo terlalu besar. Maksimal 1,5 MB.');
+ const data=await fileData(f);
+ db.settings.logo=data;
+ db.settings.logoCloudPath='';
+ db.settings.logoCloudUrl='';
+ save();renderAll();
+ try{
+   if(window.ShiroganeCloud?.uploadBusinessLogo && window.SHIROGANE_CLOUD_SESSION){
+     toast('Mengunggah logo usaha ke cloud...');
+     await window.ShiroganeCloud.uploadBusinessLogo(data);
+     save();renderAll();
+     toast('Logo usaha tersimpan di perangkat dan cloud.');
+   }else{
+     toast('Logo usaha tersimpan. Akan dikirim ke cloud saat akun tersambung.');
+   }
+ }catch(err){
+   console.error('Upload logo usaha gagal:',err);
+   toast('Logo tersimpan di perangkat. Sinkron cloud akan mencoba lagi otomatis.');
+ }
+}
+window.removeBusinessLogo=()=>{db.settings.logo='';db.settings.logoCloudPath='';db.settings.logoCloudUrl='';save();renderAll();toast('Logo usaha dihapus.');};
 window.saveSettings=()=>{Object.assign(db.settings,{business:$('#sBusiness').value,subtitle:$('#sSubtitle').value,phone:$('#sPhone').value,address:$('#sAddress').value,invoicePrefix:$('#sPrefix').value,thermalWidth:$('#sThermal').value,bank:($('#sBank').value==='__OTHER__'?$('#sBankOther').value:$('#sBank').value),account:$('#sAccount').value,accountName:$('#sAccountName').value});for(const x of ['XS','S','M','L','XL','2XL','3XL','4XL','5XL'])db.settings.sizeExtras[x]=Number($('#ex-'+x).value||0);save();renderAll();toast('Pengaturan disimpan.')};
 window.backupData=()=>{const blob=new Blob([JSON.stringify(db,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`shirogane-backup-${today()}.json`;a.click();URL.revokeObjectURL(a.href)};$('#restoreInput').onchange=async e=>{try{db=JSON.parse(await e.target.files[0].text());save();renderAll();toast('Backup berhasil dipulihkan.')}catch{toast('File backup tidak valid.')}};window.resetData=()=>{if(confirm('Yakin menghapus semua data?')){db=structuredClone(defaults);save();renderAll();toast('Semua data telah dihapus.')}};
 

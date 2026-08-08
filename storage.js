@@ -104,6 +104,13 @@
 
   function mergeMissingImages(current, incoming) {
     const result = structuredClone(incoming || {});
+    result.settings = result.settings || {};
+    const currentLogo = current?.settings?.logo || '';
+    const currentLogoPath = current?.settings?.logoCloudPath || '';
+    const currentLogoUrl = current?.settings?.logoCloudUrl || '';
+    if (!validImageData(result.settings.logo) && validImageData(currentLogo)) result.settings.logo = currentLogo;
+    if (!result.settings.logoCloudPath && currentLogoPath) result.settings.logoCloudPath = currentLogoPath;
+    if (!result.settings.logoCloudUrl && currentLogoUrl) result.settings.logoCloudUrl = currentLogoUrl;
     const currentById = new Map();
     for (const collectionName of ['orders', 'trash']) {
       for (const order of ((current && current[collectionName]) || [])) {

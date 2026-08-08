@@ -1,4 +1,4 @@
 {
-  "version": "3.0.17",
-  "notes": "Bank logo fix: embedded SVG logos for Settings, receipt preview, PDF and canvas export; no relative-path dependency"
+  "version": "3.0.18",
+  "notes": "Business logo cloud sync: logo usaha disimpan di Supabase Storage dan otomatis dipulihkan setelah login/install ulang"
 }

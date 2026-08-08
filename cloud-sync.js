@@ -6,7 +6,7 @@
   const DELETE_QUEUE_KEY = 'shirogane-cloud-image-delete-queue';
   const DIRTY_KEY = 'shirogane-cloud-local-dirty';
   const META_KEY = 'shirogane-cloud-meta';
-  const AUTH_VERSION = '1.8.0';
+  const AUTH_VERSION = '1.8.1';
   const cfg = window.SHIROGANE_CLOUD_CONFIG || {};
   let client = null;
   let session = null;
@@ -287,6 +287,55 @@
     } catch { return ''; }
   }
 
+  async function uploadBusinessLogo(dataUrl = db?.settings?.logo) {
+    if (!session || !db?.settings) return db?.settings?.logo || '';
+    if (!String(dataUrl || '').startsWith('data:image/')) {
+      if (db.settings.logoCloudPath) {
+        const publicUrl = publicImageUrl(db.settings.logoCloudPath);
+        if (publicUrl) {
+          db.settings.logoCloudUrl = publicUrl;
+          db.settings.logo = publicUrl;
+        }
+      }
+      return db.settings.logo || '';
+    }
+
+    const blob = dataUrlToBlob(dataUrl);
+    if (!blob) return db.settings.logo || '';
+    const ext = blob.type.includes('png') ? 'png' : blob.type.includes('jpeg') ? 'jpg' : 'webp';
+    const oldPath = db.settings.logoCloudPath || '';
+    const path = `${session.user.id}/business-logo.${ext}`;
+    const { error } = await client.storage.from(IMAGE_BUCKET).upload(path, blob, {
+      upsert: true,
+      contentType: blob.type,
+      cacheControl: '3600'
+    });
+    if (error) throw error;
+    if (oldPath && oldPath !== path) {
+      try { await client.storage.from(IMAGE_BUCKET).remove([oldPath]); } catch {}
+    }
+    const publicUrl = publicImageUrl(path);
+    db.settings.logoCloudPath = path;
+    db.settings.logoCloudUrl = publicUrl || '';
+    if (publicUrl) db.settings.logo = `${publicUrl}?v=${Date.now()}`;
+    return db.settings.logo || '';
+  }
+
+  async function prepareBusinessLogoForCloud() {
+    if (!db?.settings) return;
+    if (String(db.settings.logo || '').startsWith('data:image/')) {
+      await uploadBusinessLogo(db.settings.logo);
+      return;
+    }
+    if (db.settings.logoCloudPath) {
+      const publicUrl = publicImageUrl(db.settings.logoCloudPath);
+      if (publicUrl) {
+        db.settings.logoCloudUrl = publicUrl;
+        db.settings.logo = publicUrl;
+      }
+    }
+  }
+
   async function uploadOneImage(image) {
     if (!session || !image) return image;
 
@@ -319,6 +368,7 @@
   }
 
   async function prepareImagesForCloud() {
+    await prepareBusinessLogoForCloud();
     for (const collectionName of ['orders', 'trash']) {
       for (const order of (db?.[collectionName] || [])) {
         for (const image of (order.images || [])) await uploadOneImage(image);
@@ -328,6 +378,14 @@
 
   function cloudStateFromLocal() {
     const state = structuredClone(db || {});
+    if (state.settings) {
+      const logoPath = state.settings.logoCloudPath || '';
+      const sourceLogo = String(state.settings.logoCloudUrl || state.settings.logo || '');
+      const durableLogoUrl = logoPath ? publicImageUrl(logoPath) : (/^https?:\/\//i.test(sourceLogo) ? sourceLogo : '');
+      state.settings.logoCloudPath = logoPath;
+      state.settings.logoCloudUrl = durableLogoUrl;
+      state.settings.logo = durableLogoUrl;
+    }
     for (const collectionName of ['orders', 'trash']) {
       for (const order of (state[collectionName] || [])) {
         order.images = (order.images || []).map(image => {
@@ -349,6 +407,18 @@
 
   async function hydrateCloudState(state) {
     const result = structuredClone(state || {});
+    if (result.settings) {
+      const path = result.settings.logoCloudPath || '';
+      if (path) {
+        const publicUrl = publicImageUrl(path);
+        if (publicUrl) {
+          result.settings.logoCloudUrl = publicUrl;
+          result.settings.logo = publicUrl;
+        }
+      } else if (/^https?:\/\//i.test(String(result.settings.logoCloudUrl || ''))) {
+        result.settings.logo = result.settings.logoCloudUrl;
+      }
+    }
     const all = [];
     for (const collectionName of ['orders', 'trash']) {
       for (const order of (result[collectionName] || [])) {
@@ -586,6 +656,7 @@
 
   window.ShiroganeCloud = {
     queueImageDeletes,
+    uploadBusinessLogo,
     syncNow: () => smartSync(true),
     pushNow: () => pushCloud(true),
     pullNow: () => pullCloud(true)
