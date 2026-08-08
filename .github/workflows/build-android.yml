@@ -27,8 +27,23 @@ jobs:
           npm install
           npm install @capacitor/core @capacitor/cli @capacitor/android
 
+      - name: Prepare SHIROGANE Web Files
+        run: |
+          mkdir -p www
+          rsync -av ./ ./www/ \
+            --exclude www \
+            --exclude node_modules \
+            --exclude android \
+            --exclude .git \
+            --exclude .github
+
+          test -f www/index.html
+
       - name: Add Android Platform
-        run: npx cap add android
+        run: |
+          if [ ! -d "android" ]; then
+            npx cap add android
+          fi
 
       - name: Sync Capacitor
         run: npx cap sync android
