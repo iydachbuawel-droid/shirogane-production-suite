@@ -1,0 +1,8 @@
+{
+  "appId": "com.shiroganesuite.app",
+  "appName": "SHIROGANE Production Suite",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": true
+  }
+}

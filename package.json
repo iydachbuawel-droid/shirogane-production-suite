@@ -1,0 +1,10 @@
+{
+  "name": "shirogane-production-suite",
+  "version": "3.0.20",
+  "private": true,
+  "description": "SHIROGANE Production Suite - Android online build wrapper",
+  "scripts": {
+    "android:prepare": "node scripts/prepare-www.js",
+    "android:sync": "npm run android:prepare && npx cap sync android"
+  }
+}
