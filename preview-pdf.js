@@ -4,10 +4,29 @@
   async function waitImages(root){
     const imgs=[...root.querySelectorAll('img')];
     await Promise.all(imgs.map(img=>{
-      if(img.complete && img.naturalWidth)return Promise.resolve();
-      return new Promise(resolve=>{img.onload=img.onerror=resolve;});
+      // Jika browser sudah selesai memuat gambar (berhasil ATAU gagal), jangan
+      // menunggu event load/error lagi. Event itu mungkin sudah terjadi sebelum
+      // fungsi ini memasang handler dan sebelumnya membuat tombol PDF macet.
+      if(img.complete)return Promise.resolve();
+      return new Promise(resolve=>{
+        let done=false;
+        const finish=()=>{
+          if(done)return;
+          done=true;
+          clearTimeout(timer);
+          img.removeEventListener('load',finish);
+          img.removeEventListener('error',finish);
+          resolve();
+        };
+        img.addEventListener('load',finish,{once:true});
+        img.addEventListener('error',finish,{once:true});
+        // Jangan pernah biarkan satu gambar jaringan menahan proses PDF selamanya.
+        const timer=setTimeout(finish,3500);
+      });
     }));
-    if(document.fonts?.ready){try{await document.fonts.ready}catch{}}
+    if(document.fonts?.ready){
+      try{await Promise.race([document.fonts.ready,new Promise(r=>setTimeout(r,2500))])}catch{}
+    }
   }
 
   function safeName(value){
