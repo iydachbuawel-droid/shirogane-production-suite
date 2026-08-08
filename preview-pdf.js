@@ -146,7 +146,17 @@
 
       const img=canvas.toDataURL('image/png');
       pdf.addImage(img,'PNG',x,y,drawW,drawH,undefined,'FAST');
-      pdf.save((filename||'Nota-SHIROGANE.pdf').replace(/\.pdf$/i,'')+'.pdf');
+      const finalName=(filename||'Nota-SHIROGANE.pdf').replace(/\.pdf$/i,'')+'.pdf';
+      // Capacitor Android WebView tidak selalu menangani blob/download browser.
+      // Kirim PDF langsung ke bridge native agar benar-benar tersimpan di folder Download.
+      if(window.ShiroganeAndroid?.savePdfBase64){
+        const dataUri=pdf.output('datauristring');
+        const base64=dataUri.split(',')[1]||'';
+        const result=window.ShiroganeAndroid.savePdfBase64(finalName,base64);
+        if(result===false)throw new Error('Android gagal menyimpan PDF.');
+      }else{
+        pdf.save(finalName);
+      }
     } finally {
       host.remove();
     }

@@ -1,4 +1,4 @@
 {
-  "version": "3.0.20",
+  "version": "3.0.21",
   "notes": "Business logo cloud sync: logo usaha disimpan di Supabase Storage dan otomatis dipulihkan setelah login/install ulang"
 }

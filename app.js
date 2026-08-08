@@ -265,7 +265,15 @@ window.closeMobilePrintPreview=()=>{
 };
 window.printMobilePreview=()=>{
  document.body.classList.add('mobile-printing');
- setTimeout(()=>{window.print();setTimeout(()=>document.body.classList.remove('mobile-printing'),700)},80);
+ setTimeout(()=>{
+  if(window.ShiroganeAndroid?.printPage){
+   try{window.ShiroganeAndroid.printPage();}catch(err){console.error(err);toast('Print Android gagal dibuka.');}
+   setTimeout(()=>document.body.classList.remove('mobile-printing'),1200);
+   return;
+  }
+  window.print();
+  setTimeout(()=>document.body.classList.remove('mobile-printing'),700);
+ },120);
 };
 window.downloadPreviewPdf=async (element,invoice,button)=>{
  if(typeof window.SHROGANE_downloadPreviewPdf!=='function')return toast('Generator PDF belum siap. Pastikan internet aktif lalu muat ulang.');
