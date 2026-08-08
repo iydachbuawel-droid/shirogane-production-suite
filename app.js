@@ -121,11 +121,19 @@ const bankAssets={
  'CIMB NIAGA':'cimb-niaga.svg','PERMATA':'permata.svg','SEABANK':'seabank.svg','BANK JAGO':'bank-jago.svg',
  'BANK NEO':'bank-neo.svg','DANA':'dana.svg','OVO':'ovo.svg','GOPAY':'gopay.svg','SHOPEEPAY':'shopeepay.svg'
 };
-function bankLogoHTML(name,large=false){
+function bankLogoSource(name){
  const key=String(name||'BANK').trim().toUpperCase();
  const custom=(db.settings.customBankLogos||{})[key];
- const src=custom||((bankAssets[key])?`assets/banks/${bankAssets[key]}`:'');
- if(src)return `<img class="bank-logo-img ${large?'large':''}" src="${src}" alt="Logo ${esc(name||'Bank')}">`;
+ if(custom)return custom;
+ const embedded=(window.SHIROGANE_BANK_LOGOS||{})[key];
+ if(embedded)return embedded;
+ const file=bankAssets[key];
+ if(!file)return '';
+ try{return new URL(`assets/banks/${file}`,document.baseURI).href}catch(_){return `assets/banks/${file}`}
+}
+function bankLogoHTML(name,large=false){
+ const src=bankLogoSource(name);
+ if(src)return `<img class="bank-logo-img ${large?'large':''}" src="${src}" alt="Logo ${esc(name||'Bank')}" onerror="this.style.display='none';this.nextElementSibling&&(this.nextElementSibling.style.display='inline-flex')"><span class="bank-logo-fallback ${large?'large':''}" style="display:none">${esc(String(name||'BANK').trim()||'BANK')}</span>`;
  return `<span class="bank-logo-fallback ${large?'large':''}">${esc(String(name||'BANK').trim()||'BANK')}</span>`;
 }
 function businessLogoHTML(cls=''){return db.settings.logo?`<img class="business-logo ${cls}" src="${db.settings.logo}" alt="Logo ${esc(db.settings.business)}">`:`<div class="business-logo-placeholder ${cls}">${esc((db.settings.business||'S').slice(0,1))}</div>`}

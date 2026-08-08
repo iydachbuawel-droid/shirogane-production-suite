@@ -177,7 +177,14 @@
     const logo = await loadImage(db.settings.logo || 'app-icon.png');
     const bankKey = String(db.settings.bank || '').trim().toUpperCase();
     const bankFile = typeof bankAssets !== 'undefined' ? bankAssets[bankKey] : '';
-    const bankSource = (db.settings.customBankLogos || {})[bankKey] || (bankFile ? `assets/banks/${bankFile}` : '');
+    const customBankSource = (db.settings.customBankLogos || {})[bankKey] || '';
+    const embeddedBankSource = (window.SHIROGANE_BANK_LOGOS || {})[bankKey] || '';
+    let fallbackBankSource = '';
+    if (bankFile) {
+      try { fallbackBankSource = new URL(`assets/banks/${bankFile}`, document.baseURI).href; }
+      catch (_) { fallbackBankSource = `assets/banks/${bankFile}`; }
+    }
+    const bankSource = customBankSource || embeddedBankSource || fallbackBankSource;
     const bankLogo = await loadImage(bankSource);
     const designImages = (await Promise.all((order.images || []).slice(0, 3).map(image => { const src=image?.data||''; return /^(data:image\/|blob:|https?:\/\/)/i.test(src)?loadImage(src):Promise.resolve(null); }))).filter(Boolean);
 

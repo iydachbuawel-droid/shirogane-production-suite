@@ -1,4 +1,4 @@
 {
-  "version": "3.0.16",
-  "notes": "Update loop fix; PDF download hang fix retained; preview-to-PDF exact single-page export"
+  "version": "3.0.17",
+  "notes": "Bank logo fix: embedded SVG logos for Settings, receipt preview, PDF and canvas export; no relative-path dependency"
 }
