@@ -1,4 +1,4 @@
-const CACHE = 'shirogane-v3.0.13';
+const CACHE = 'shirogane-v3.0.14';
 self.addEventListener('install', event => event.waitUntil(self.skipWaiting()));
 self.addEventListener('activate', event => event.waitUntil(
   caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE).map(key => caches.delete(key))))
