@@ -133,8 +133,11 @@ function bankLogoSource(name){
 }
 function bankLogoHTML(name,large=false){
  const src=bankLogoSource(name);
- if(src)return `<img class="bank-logo-img ${large?'large':''}" src="${src}" alt="Logo ${esc(name||'Bank')}" onerror="this.style.display='none';this.nextElementSibling&&(this.nextElementSibling.style.display='inline-flex')"><span class="bank-logo-fallback ${large?'large':''}" style="display:none">${esc(String(name||'BANK').trim()||'BANK')}</span>`;
- return `<span class="bank-logo-fallback ${large?'large':''}">${esc(String(name||'BANK').trim()||'BANK')}</span>`;
+ const label=esc(String(name||'BANK').trim()||'BANK');
+ // v3.0.19: render exactly ONE bank mark. The old img+fallback sibling pair
+ // could occupy separate grid columns and make the receipt block look duplicated.
+ if(src)return `<div class="bank-logo-slot ${large?'large':''}"><img class="bank-logo-img ${large?'large':''}" src="${src}" alt="Logo ${esc(name||'Bank')}" onerror="this.style.display='none';this.parentElement.classList.add('logo-error');this.parentElement.setAttribute('data-bank','${label}')"></div>`;
+ return `<div class="bank-logo-slot bank-logo-text ${large?'large':''}">${label}</div>`;
 }
 function businessLogoHTML(cls=''){return db.settings.logo?`<img class="business-logo ${cls}" src="${db.settings.logo}" alt="Logo ${esc(db.settings.business)}">`:`<div class="business-logo-placeholder ${cls}">${esc((db.settings.business||'S').slice(0,1))}</div>`}
 

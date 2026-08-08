@@ -737,3 +737,50 @@ body.exit-confirm-open{overflow:hidden}
 @media(max-width:640px){.sg-system-actions{grid-template-columns:1fr}.sg-stability-actions{display:grid;grid-template-columns:1fr}.sg-stability-actions .btn{width:100%}.sg-stability-head{align-items:center}.sg-stability-head p{font-size:13px}}
 
 .splash-logo-img{width:100%;height:100%;display:block;object-fit:cover;border-radius:29px;background:#111827;}
+
+
+/* v3.0.19 — BANK RECEIPT LAYOUT FIX
+   One logo column + one account column. No duplicate/fallback box. */
+.bank-logo-slot{
+  width:132px;height:48px;min-width:132px;
+  display:flex;align-items:center;justify-content:flex-start;
+  overflow:hidden;background:transparent;border:0;padding:0;
+}
+.bank-logo-slot.large{width:150px;height:54px;min-width:150px}
+.bank-logo-slot .bank-logo-img,
+.bank-logo-slot .bank-logo-img.large{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:100%!important;object-fit:contain!important;object-position:left center!important;
+  padding:0!important;margin:0!important;border:0!important;background:transparent!important;
+}
+.bank-logo-slot.logo-error::after{content:attr(data-bank);font-weight:900;font-size:18px;color:#334155}
+.bank-logo-slot.bank-logo-text{font-weight:900;font-size:18px;color:#334155}
+.preview .payment-bank{
+  display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;
+  align-items:center!important;column-gap:16px!important;
+  width:100%!important;min-width:0!important;padding:14px 16px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank>.bank-logo-slot,
+.preview .payment-bank>.bank-logo-slot.large{
+  width:112px!important;min-width:112px!important;height:50px!important;
+}
+.preview .payment-bank>div:last-child{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  gap:2px!important;min-width:0!important;overflow:visible!important;
+}
+.preview .payment-bank small{font-size:11px!important;line-height:1.2!important;color:var(--muted)!important}
+.preview .payment-bank strong{
+  display:block!important;width:auto!important;max-width:100%!important;
+  font-size:15px!important;line-height:1.2!important;letter-spacing:.02em!important;
+  white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;
+}
+.preview .payment-bank span{font-size:11px!important;line-height:1.2!important;color:var(--muted)!important}
+@media(max-width:720px){
+  .preview .payment-bank{grid-template-columns:104px minmax(0,1fr)!important;column-gap:12px!important;padding:12px!important}
+  .preview .payment-bank>.bank-logo-slot,.preview .payment-bank>.bank-logo-slot.large{width:104px!important;min-width:104px!important;height:46px!important}
+  .preview .payment-bank strong{font-size:14px!important}
+}
+@media print{
+  .bank-logo-slot,.bank-logo-slot .bank-logo-img{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
