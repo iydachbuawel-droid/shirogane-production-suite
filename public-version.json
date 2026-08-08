@@ -1,4 +1,4 @@
 {
-  "version": "3.0.15",
-  "notes": "Preview-to-PDF exact single-page export; PDF size follows preview dimensions"
+  "version": "3.0.16",
+  "notes": "Update loop fix; PDF download hang fix retained; preview-to-PDF exact single-page export"
 }

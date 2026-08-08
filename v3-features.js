@@ -4,7 +4,7 @@
 (() => {
   'use strict';
 
-  const APP_VERSION = '3.0.14';
+  const APP_VERSION = '3.0.16';
   const BACKUP_DB = 'shirogane-auto-backups';
   const BACKUP_STORE = 'backups';
   const MAX_BACKUPS = 10;
