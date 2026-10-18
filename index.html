@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>SHIROGANE Production Suite</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="app-icon.png" />
+  <link rel="stylesheet" href="styles.css?v=3.0.20" />
+</head>
+<body class="app-loading">
+  <div id="appSplash" class="app-splash" role="status" aria-live="polite">
+    <div class="splash-glow splash-glow-one"></div>
+    <div class="splash-glow splash-glow-two"></div>
+    <div class="splash-content">
+      <div class="splash-logo-ring"><img class="splash-logo-img" src="app-icon.png" alt="SHIROGANE" /></div>
+      <h1>SHIROGANE</h1>
+      <p>Production Suite</p>
+      <div class="splash-loader"><span></span></div>
+      <small>Menyiapkan aplikasi...</small>
+    </div>
+  </div>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div><strong id="brandNameSide">SHIROGANE</strong><small>Production Suite</small></div>
+      </div>
+      <nav id="nav">
+        <button data-page="dashboard" class="active">⌂ Dashboard</button>
+        <button data-page="new-order">＋ Buat Pesanan</button>
+        <button data-page="orders">▤ Daftar Pesanan</button>
+        <button data-page="customers">♙ Pelanggan</button>
+        <button data-page="products">▦ Daftar Harga</button>
+        <button data-page="reports">▥ Laporan</button>
+        <button data-page="trash">🗑 Sampah</button>
+        <button data-page="activity">◷ Aktivitas</button>
+        <button data-page="settings">⚙ Pengaturan</button>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="storage-status" id="storageStatus"><span class="status-dot"></span><span id="storageStatusText">Memeriksa koneksi...</span></div>
+        <div class="license-branding">
+          <strong>By SHIROGANE®</strong>
+          <span>Production Suite</span>
+          <small>© 2026 All Rights Reserved</small>
+        </div>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <button id="mobileMenu" class="icon-btn">☰</button>
+        <div><h1 id="pageTitle">Dashboard</h1><p id="pageSubtitle">Ringkasan operasional SHIROGANE</p></div>
+        <button class="btn primary" id="quickAdd">＋ Pesanan Baru</button>
+      </header>
+      <section id="page-dashboard" class="page active"></section>
+      <section id="page-new-order" class="page"></section>
+      <section id="page-orders" class="page"></section>
+      <section id="page-customers" class="page"></section>
+      <section id="page-products" class="page"></section>
+      <section id="page-reports" class="page"></section>
+      <section id="page-trash" class="page"></section>
+      <section id="page-activity" class="page"></section>
+      <section id="page-settings" class="page"></section>
+    </main>
+  </div>
+  <div id="toast" class="toast"></div>
+  <input type="file" id="restoreInput" accept="application/json" hidden />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="storage.js?v=3.0.20"></script>
+  <script src="cloud-config.js?v=3.0.20"></script>
+  <script src="receipt-public.js?v=3.0.20"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="preview-pdf.js?v=3.0.20"></script>
+  <script src="bank-logos.js?v=3.0.20"></script>
+  <script src="app.js?v=3.0.20"></script>
+  <script src="cloud-sync.js?v=3.0.20"></script>
+  <script src="receipt-tools.js?v=3.0.20"></script>
+  <script src="v3-features.js?v=3.0.20"></script>
+  <script src="exit-confirm.js?v=3.0.20"></script>
+<script>
+// Mode stabil: nonaktifkan Service Worker lama agar file terbaru selalu dimuat.
+if ('serviceWorker' in navigator) navigator.serviceWorker.getRegistrations().then(list=>list.forEach(r=>r.unregister()));
+if ('caches' in window) caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k))));
+</script>
+</body>
+</html>

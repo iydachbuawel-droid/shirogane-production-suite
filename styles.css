@@ -1,0 +1,787 @@
+:root{--bg:#f4f6f8;--panel:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--dark:#111827;--gold:#d4a84b;--danger:#b91c1c;--success:#15803d;--warning:#b45309;--radius:18px;--shadow:0 10px 30px rgba(17,24,39,.08)}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}.sidebar{position:fixed;inset:0 auto 0 0;width:250px;background:#0b1220;color:#fff;padding:22px 16px;display:flex;flex-direction:column;z-index:20}.brand{display:flex;align-items:center;gap:12px;padding:0 8px 24px}.brand-mark{width:42px;height:42px;border:1px solid #d4a84b;border-radius:13px;display:grid;place-items:center;color:#d4a84b;font-weight:800;font-size:22px}.brand small{display:block;color:#94a3b8;margin-top:2px}.sidebar nav{display:grid;gap:7px}.sidebar nav button{border:0;background:transparent;color:#cbd5e1;text-align:left;padding:12px 14px;border-radius:12px;cursor:pointer}.sidebar nav button:hover,.sidebar nav button.active{background:#1f2937;color:#fff}.sidebar-footer{margin-top:auto;color:#64748b;font-size:12px;padding:8px}main{margin-left:250px;min-height:100vh}.topbar{height:92px;background:rgba(255,255,255,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 28px;position:sticky;top:0;z-index:10}.topbar h1{font-size:24px;margin:0}.topbar p{margin:4px 0 0;color:var(--muted);font-size:13px}.topbar .btn{margin-left:auto}.icon-btn{display:none;border:0;background:transparent;font-size:24px}.page{display:none;padding:28px}.page.active{display:block}.grid{display:grid;gap:18px}.grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}.card{padding:20px}.card .label{color:var(--muted);font-size:13px}.card .value{font-weight:800;font-size:28px;margin-top:8px}.card .hint{font-size:12px;color:var(--muted);margin-top:8px}.panel{padding:22px;margin-top:18px}.panel h2{font-size:18px;margin:0 0 18px}.btn{border:1px solid var(--line);background:#fff;color:var(--text);padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:650}.btn:hover{transform:translateY(-1px)}.btn.primary{background:var(--dark);color:#fff;border-color:var(--dark)}.btn.gold{background:var(--gold);color:#111;border-color:var(--gold)}.btn.danger{background:#fff1f2;color:var(--danger);border-color:#fecdd3}.btn.small{padding:7px 10px;font-size:12px}.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.toolbar .spacer{flex:1}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}.field{display:grid;gap:7px}.field label{font-size:12px;color:var(--muted);font-weight:700}.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:11px;padding:11px 12px;background:#fff}.field textarea{min-height:86px;resize:vertical}.split{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(340px,.75fr);gap:18px}.sticky{position:sticky;top:112px;align-self:start}.table-wrap{overflow:auto;border:1px solid var(--line);border-radius:14px}table{width:100%;border-collapse:collapse;min-width:760px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}th{background:#f8fafc;color:#475569;font-size:11px;text-transform:uppercase;letter-spacing:.04em}tr:last-child td{border-bottom:0}.badge{display:inline-flex;align-items:center;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700;background:#eef2ff}.badge.success{background:#dcfce7;color:#166534}.badge.warning{background:#fef3c7;color:#92400e}.badge.danger{background:#fee2e2;color:#991b1b}.badge.info{background:#dbeafe;color:#1d4ed8}.item-card{border:1px solid var(--line);border-radius:15px;padding:15px;margin-bottom:12px;background:#fafafa}.item-head{display:flex;align-items:center;gap:10px;margin-bottom:12px}.item-head strong{flex:1}.sizes{display:grid;grid-template-columns:repeat(7,minmax(55px,1fr));gap:8px}.sizes .field input{text-align:center;padding:9px 5px}.summary{display:grid;gap:10px}.summary-row{display:flex;justify-content:space-between;gap:20px}.summary-row.total{border-top:1px dashed var(--line);padding-top:12px;font-weight:800;font-size:18px}.summary-row.balance{background:#111827;color:#fff;border-radius:12px;padding:13px;font-weight:800}.empty{text-align:center;padding:42px;color:var(--muted)}.preview{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff}.preview .receipt-head{text-align:center;border-bottom:2px solid #111;padding-bottom:12px}.preview h3{margin:0;font-size:20px}.preview p{margin:3px 0;font-size:11px}.preview table{min-width:0}.preview th,.preview td{font-size:10px;padding:5px}.preview .receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:12px 0;font-size:10px}.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.thumb{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;aspect-ratio:1;background:#f1f5f9}.thumb img{width:100%;height:100%;object-fit:contain;object-position:center;background:#fff}.thumb button{position:absolute;right:5px;top:5px;border:0;border-radius:99px;background:rgba(0,0,0,.65);color:white;width:25px;height:25px}.upload-box{border:2px dashed #cbd5e1;border-radius:14px;padding:18px;text-align:center;color:var(--muted);cursor:pointer}.toast{position:fixed;right:20px;bottom:20px;background:#111827;color:#fff;padding:12px 16px;border-radius:12px;opacity:0;transform:translateY(12px);transition:.2s;z-index:100;pointer-events:none}.toast.show{opacity:1;transform:none}.chart-bars{display:flex;align-items:end;gap:8px;height:220px;padding:10px 0}.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:7px;height:100%;justify-content:flex-end}.bar{width:100%;max-width:42px;background:#111827;border-radius:8px 8px 2px 2px;min-height:4px}.bar-label{font-size:10px;color:var(--muted)}.bar-value{font-size:9px;color:var(--muted);writing-mode:vertical-rl;transform:rotate(180deg);max-height:70px;overflow:hidden}.danger-zone{border-color:#fecaca;background:#fff7f7}
+@media(max-width:1000px){.grid.cards{grid-template-columns:repeat(2,1fr)}.split{grid-template-columns:1fr}.sticky{position:static}.form-grid.three{grid-template-columns:1fr 1fr}.sizes{grid-template-columns:repeat(4,1fr)}}
+@media(max-width:720px){.sidebar{transform:translateX(-100%);transition:.2s;width:270px}.sidebar.open{transform:none}main{margin-left:0}.icon-btn{display:block}.topbar{height:78px;padding:0 16px}.topbar .btn{display:none}.page{padding:16px}.grid.cards,.form-grid,.form-grid.three{grid-template-columns:1fr}.panel{padding:16px}.sizes{grid-template-columns:repeat(3,1fr)}.thumbs{grid-template-columns:repeat(2,1fr)}}
+@media print{body{background:#fff}.sidebar,.topbar,.no-print{display:none!important}main{margin:0}.page{display:none!important;padding:0}.print-area{display:block!important}.preview{border:0;box-shadow:none;border-radius:0}.thermal-print{width:80mm;margin:0 auto}.f4-print{width:165mm;min-height:210mm;margin:0 auto;padding:8mm}.f4-print .preview{font-size:12px}}
+.brand-mark{overflow:hidden}.brand-mark img{width:100%;height:100%;object-fit:contain;padding:4px}.receipt-head.branded{display:flex;align-items:center;justify-content:center;gap:12px;text-align:left}.receipt-head.branded>div:last-child{text-align:center}.business-logo,.business-logo-placeholder{width:64px;height:64px;object-fit:contain;flex:0 0 auto}.business-logo-placeholder{display:grid;place-items:center;border:2px solid #111;border-radius:14px;font-size:30px;font-weight:900}.receipt-logo{width:58px;height:58px}.logo-setting{display:flex;align-items:center;gap:18px;margin-bottom:20px;padding:16px;border:1px dashed var(--line);border-radius:15px;background:#fafafa}.logo-setting p{margin:9px 0 0;color:var(--muted);font-size:12px}.settings-logo{width:86px;height:86px}.bank-logo-img{display:block;width:132px;height:42px;object-fit:contain;object-position:left center}.bank-logo-img.large{width:170px;height:52px}.bank-logo-fallback{display:inline-flex;align-items:center;justify-content:center;min-width:112px;height:38px;padding:0 14px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;color:#334155;font-weight:900}.bank-logo-fallback.large{min-width:145px;height:48px;font-size:17px}.bank-setting-preview{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding:12px;border:1px solid var(--line);border-radius:13px;background:#f8fafc}.bank-setting-preview span{font-size:12px;color:var(--muted)}.bank-logo-actions{display:flex;gap:8px;flex-wrap:wrap}.field-help{display:block;margin-top:7px;color:var(--muted);line-height:1.35}.payment-bank{display:flex;align-items:center;gap:12px;margin-top:14px;padding:12px;border:1px solid var(--line);border-radius:12px;background:#f8fafc}.payment-bank>div{display:grid;gap:2px}.payment-bank small,.payment-bank span{font-size:10px;color:var(--muted)}.payment-bank strong{font-size:15px;letter-spacing:.04em}@media(max-width:720px){.logo-setting{align-items:flex-start}.receipt-head.branded{gap:8px}.receipt-logo{width:48px;height:48px}}@media print{.payment-bank{-webkit-print-color-adjust:exact;print-color-adjust:exact}.bank-logo-img,.bank-logo-fallback{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.item-calc{font-size:12px;color:var(--muted);margin-left:auto;margin-right:10px}.calc-note{margin-top:10px;padding:9px 12px;border-radius:10px;background:#fff7d6;color:#6c5200;font-size:12px}.summary-row.extra-detail{font-size:12px;color:var(--muted)}.summary-row.extra-detail b{color:var(--text)}
+/* Product manager v4.3 */
+.product-subtitle{font-size:12px;color:var(--muted)}.product-search{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:12px;background:#fff;padding:0 11px;min-width:240px}.product-search span{font-size:20px;color:var(--muted)}.product-search input{border:0;outline:0;padding:10px 0;width:100%;background:transparent}.product-table td{vertical-align:middle}.product-number{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;background:#f1f5f9;color:#475569;font-weight:800}.product-name-cell{display:flex;align-items:center;gap:11px}.product-name-cell>div{display:grid;gap:3px}.product-name-cell small{font-size:10px;color:var(--muted)}.product-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:#111827;color:#d4a84b}.product-price{font-size:15px}.product-actions{display:flex;gap:6px;flex-wrap:wrap}.product-empty{display:grid;gap:7px}.product-empty span{font-size:12px}.empty-icon{font-size:34px;color:#94a3b8}.modal-open{overflow:hidden}.modal-backdrop{position:fixed;inset:0;background:rgba(2,6,23,.58);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:18px;z-index:1000}.modal-backdrop.show{display:flex;animation:fadeIn .16s ease}.modal-card{width:min(520px,100%);background:#fff;border-radius:20px;box-shadow:0 28px 80px rgba(0,0,0,.28);overflow:hidden;animation:modalUp .2s ease}.modal-head{display:flex;gap:16px;align-items:flex-start;padding:22px 24px 16px;border-bottom:1px solid var(--line)}.modal-head>div{flex:1}.modal-head h2{margin:3px 0 5px;font-size:22px}.modal-head p{margin:0;color:var(--muted);font-size:13px;line-height:1.45}.modal-kicker{font-size:10px;font-weight:900;letter-spacing:.12em;color:#a27622}.modal-close{width:36px;height:36px;border:0;border-radius:10px;background:#f1f5f9;font-size:25px;line-height:1;cursor:pointer}.modal-body{padding:22px 24px;display:grid;gap:18px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:16px 24px 22px}.required{color:var(--danger)}.money-input{display:flex;align-items:center;border:1px solid var(--line);border-radius:11px;overflow:hidden;background:#fff}.money-input:focus-within{border-color:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.12)}.money-input span{align-self:stretch;display:grid;place-items:center;padding:0 13px;background:#f8fafc;border-right:1px solid var(--line);font-weight:800;color:#475569}.money-input input{border:0!important;border-radius:0!important;outline:0;box-shadow:none!important}.price-preview{font-size:12px;color:var(--muted);margin-top:6px}.price-preview b{color:var(--text)}.form-error{padding:11px 12px;border-radius:10px;background:#fff1f2;border:1px solid #fecdd3;color:#9f1239;font-size:12px;font-weight:650}@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes modalUp{from{transform:translateY(12px) scale(.98);opacity:0}to{transform:none;opacity:1}}@media(max-width:720px){.product-stats{grid-template-columns:1fr!important}.product-toolbar{align-items:stretch}.product-toolbar>div:first-child{width:100%}.product-search{min-width:0;flex:1}.product-actions{min-width:210px}.modal-card{border-radius:17px}.modal-head,.modal-body,.modal-actions{padding-left:18px;padding-right:18px}}
+
+/* Nota Digital v1.2.0 */
+.receipt-modal{position:fixed;inset:0;z-index:100200;background:rgba(15,23,42,.72);display:flex;align-items:center;justify-content:center;padding:18px}
+.receipt-card{position:relative;width:min(520px,100%);background:#fff;border-radius:22px;padding:26px;box-shadow:0 25px 80px rgba(0,0,0,.35);text-align:center}
+.receipt-card h2{margin:8px 0 5px}.receipt-card p{color:#64748b;margin:0 0 20px}.receipt-success{width:58px;height:58px;border-radius:50%;margin:auto;display:grid;place-items:center;background:#dcfce7;color:#166534;font-size:32px;font-weight:900}
+.receipt-close{position:absolute;right:14px;top:12px;border:0;background:transparent;font-size:28px;cursor:pointer;color:#64748b}
+.receipt-action-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.receipt-action-grid button{border:1px solid #dbe3ee;background:#f8fafc;border-radius:13px;padding:12px 10px;font-weight:750;cursor:pointer;color:#111827}.receipt-action-grid button:hover{background:#eef2f7}.receipt-action-grid button:nth-child(2){background:#dcfce7;color:#166534;border-color:#bbf7d0}.receipt-action-grid button:nth-child(1){background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.receipt-pdf{color:#1d4ed8!important}.receipt-wa{color:#15803d!important}
+@media(max-width:560px){.receipt-action-grid{grid-template-columns:1fr}.receipt-card{padding:22px 16px}.actions-cell{min-width:420px}}
+
+/* v1.2.3: gambar desain ditampilkan utuh, tidak terpotong */
+#thumbs .thumb,.preview .thumb{background:#fff}
+#thumbs .thumb img,.preview .thumb img{object-fit:contain!important;object-position:center!important;background:#fff}
+
+/* ===== SHIROGANE v1.4.0 Public Receipt ===== */
+.public-receipt-mode body{margin:0;background:#eef2f7;color:#0f172a;font-family:Inter,Segoe UI,Arial,sans-serif}.public-receipt-page{width:min(980px,calc(100% - 24px));margin:24px auto}.public-receipt-sheet{background:#fff;border-radius:18px;box-shadow:0 18px 60px rgba(15,23,42,.15);padding:34px}.public-receipt-loading,.public-receipt-error{text-align:center;padding:70px 20px;color:#64748b}.public-receipt-error h2{color:#b91c1c}.public-receipt-head{display:flex;align-items:center;justify-content:center;gap:16px;text-align:center;border-bottom:3px solid #111827;padding-bottom:16px}.public-receipt-logo{width:72px;height:72px;object-fit:contain}.public-receipt-head h1{margin:0;font-size:28px}.public-receipt-head p{margin:3px 0;color:#64748b;font-size:12px}.public-receipt-meta{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:14px 0;font-size:12px}.public-receipt-meta div:nth-child(even){text-align:right}.public-receipt-table-wrap{overflow:auto;border:1px solid #e2e8f0;border-radius:12px}.public-receipt-table-wrap table{width:100%;border-collapse:collapse;min-width:760px}.public-receipt-table-wrap th,.public-receipt-table-wrap td{padding:8px 6px;border-bottom:1px solid #e2e8f0;text-align:center;font-size:11px}.public-receipt-table-wrap th:first-child,.public-receipt-table-wrap td:first-child{text-align:left}.public-receipt-table-wrap th{background:#f8fafc;color:#475569}.public-receipt-summary{width:min(430px,100%);margin:16px 0 0 auto}.public-receipt-summary>div{display:flex;justify-content:space-between;padding:7px 0}.public-receipt-summary .total{border-top:1px solid #cbd5e1;margin-top:4px;padding-top:12px;font-size:18px}.public-receipt-summary .balance{color:#111827;font-size:24px;font-weight:900}.public-receipt-bank{margin-top:18px;padding:14px;border:1px solid #dbe3ec;border-radius:12px;background:#f8fafc}.public-receipt-bank small,.public-receipt-bank strong,.public-receipt-bank span{display:block}.public-receipt-bank strong{font-size:18px}.public-receipt-note{font-size:12px;margin:16px 0 8px}.public-receipt-designs{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}.public-receipt-designs figure{margin:0;height:320px;border:1px solid #e2e8f0;border-radius:12px;padding:8px;background:#fff}.public-receipt-designs img{width:100%;height:100%;object-fit:contain;object-position:center}.public-receipt-sheet footer{text-align:center;color:#64748b;font-size:11px;margin-top:18px}.public-receipt-actions{display:flex;justify-content:center;gap:10px;margin-top:20px}.public-receipt-actions button{border:0;border-radius:10px;padding:11px 16px;background:#111827;color:#fff;font-weight:700}.public-receipt-mode #app,.public-receipt-mode #toast{display:none!important}@media(max-width:720px){.public-receipt-page{width:100%;margin:0}.public-receipt-sheet{border-radius:0;padding:18px}.public-receipt-designs{grid-template-columns:1fr}.public-receipt-designs figure{height:280px}}@media print{.public-receipt-mode body{background:#fff}.public-receipt-page{width:100%;margin:0}.public-receipt-sheet{box-shadow:none;border-radius:0;padding:0}.public-receipt-actions{display:none}.public-receipt-designs img{object-fit:contain!important}}
+
+/* v1.4.2 - detail tambahan ukuran pada nota */
+.public-receipt-summary .extra-detail,.summary-row.extra-detail{font-size:12px;color:#334155;padding-top:4px;padding-bottom:4px}
+
+/* v1.4.3 - rincian biaya ukuran */
+.extra-title{font-size:12px;font-weight:800;color:#334155;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.summary-row.extra-detail{font-size:12px;padding:3px 0}
+.summary-row.extra-total{font-size:12px;font-weight:800;border-top:1px dashed var(--line);padding-top:6px;margin-top:3px}
+
+/* v1.4.4 — rincian biaya ukuran wajib terlihat pada preview, F4, dan PDF */
+.extra-title{display:block!important;font-size:12px!important;font-weight:800!important;color:#111827!important;margin:10px 0 4px!important;text-transform:uppercase!important;letter-spacing:.03em!important}
+.summary-row.extra-detail{display:flex!important;justify-content:space-between!important;gap:16px!important;font-size:12px!important;color:#111827!important;padding:3px 0!important}
+.summary-row.extra-total{display:flex!important;font-weight:800!important;border-top:1px dashed #cbd5e1!important;padding-top:6px!important;margin-top:3px!important}
+@media print{.extra-title,.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;color:#111827!important}.extra-title{display:block!important}}
+
+/* v1.6.2: rincian tambahan biaya wajib terlihat pada preview/cetak/PDF */
+.extra-title{display:block!important;font-size:12px!important;font-weight:900!important;color:#111827!important;margin:10px 0 5px!important;text-transform:uppercase!important}
+.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;opacity:1!important;justify-content:space-between!important;gap:12px!important;color:#111827!important;font-size:12px!important;line-height:1.45!important;padding:4px 0!important}
+.summary-row.extra-detail span{white-space:normal!important}
+@media print{.extra-title,.summary-row.extra-detail,.summary-row.extra-total{display:flex!important;visibility:visible!important;opacity:1!important}.extra-title{display:block!important}}
+
+/* emphasized remaining balance */
+.summary-row.balance{font-size:24px!important;font-weight:900!important;color:#111827!important;border-top:3px solid #111827!important;padding-top:14px!important}
+.summary-row.balance span{font-weight:900!important}
+
+/* v1.7.0: fokus sisa pembayaran */
+.sizes{grid-template-columns:repeat(9,minmax(52px,1fr))}
+.summary-row.balance{
+  background:#fff3cd!important;
+  color:#111827!important;
+  border:3px solid #111827!important;
+  border-radius:12px!important;
+  padding:15px 16px!important;
+  font-size:25px!important;
+  font-weight:900!important;
+  line-height:1.2!important;
+}
+.summary-row.balance span{font-size:inherit!important;font-weight:900!important}
+@media(max-width:1100px){.sizes{grid-template-columns:repeat(5,minmax(55px,1fr))}}
+@media print{
+  .summary-row.balance{
+    background:#fff!important;
+    color:#000!important;
+    border:3px solid #000!important;
+    font-size:25px!important;
+    font-weight:900!important;
+  }
+}
+
+/* v1.7.0 portable verification */
+#activeBuildBadge{font-size:14px!important;font-weight:900!important;opacity:1!important;background:#b91c1c!important;padding:8px 12px!important;border:2px solid #fff!important;box-shadow:0 4px 16px rgba(0,0,0,.3)!important}
+.receipt-action-grid{grid-template-columns:1fr 1fr!important}
+
+/* v1.7.0 — kotak sisa pembayaran responsif, tidak melewati panel nota */
+.preview .summary-row.balance{
+  display:grid!important;
+  grid-template-columns:minmax(105px,.85fr) minmax(0,1.15fr)!important;
+  align-items:center!important;
+  column-gap:10px!important;
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow:hidden!important;
+  padding:14px 14px!important;
+}
+.preview .summary-row.balance span{
+  min-width:0!important;
+  max-width:100%!important;
+  line-height:1.12!important;
+}
+.preview .summary-row.balance span:first-child{
+  font-size:clamp(18px,1.7vw,25px)!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+}
+.preview .summary-row.balance span:last-child{
+  font-size:clamp(18px,1.65vw,25px)!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.025em!important;
+}
+.split>*{min-width:0}
+.sticky,.preview{min-width:0;max-width:100%}
+@media(max-width:1180px){
+  .preview .summary-row.balance{
+    grid-template-columns:minmax(92px,.8fr) minmax(0,1.2fr)!important;
+    padding:13px 11px!important;
+    column-gap:7px!important;
+  }
+  .preview .summary-row.balance span:first-child{font-size:20px!important}
+  .preview .summary-row.balance span:last-child{font-size:20px!important}
+}
+@media(max-width:980px){
+  .split{grid-template-columns:1fr!important}
+  .sticky{position:static!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    overflow:visible!important;
+    grid-template-columns:1fr auto!important;
+  }
+}
+
+/* v1.7.0 — layout responsif untuk jendela Windows yang tidak dimaksimalkan */
+.card,.panel,.toolbar,.field,.table-wrap{min-width:0}
+.card .value{
+  max-width:100%;
+  font-size:clamp(20px,2.15vw,28px);
+  line-height:1.15;
+  overflow-wrap:anywhere;
+  word-break:normal;
+}
+.actions-cell{display:flex;flex-wrap:wrap;align-items:center;gap:6px}
+.actions-cell .btn{margin:0!important;white-space:nowrap}
+
+/* Pada lebar jendela laptop, form dan preview disusun ke bawah agar tidak berdesakan. */
+@media(max-width:1280px){
+  .page{padding:20px}
+  .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:minmax(0,1fr)!important}
+  .sticky{position:static!important;top:auto!important}
+  .form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+
+  /* Dashboard tetap muat tanpa tulisan keluar dari kartu atau tabel. */
+  #page-dashboard .table-wrap{overflow-x:auto;max-width:100%}
+  #page-dashboard .table-wrap table{min-width:680px;table-layout:fixed}
+  #page-dashboard .table-wrap th:nth-child(1),#page-dashboard .table-wrap td:nth-child(1){width:16%}
+  #page-dashboard .table-wrap th:nth-child(2),#page-dashboard .table-wrap td:nth-child(2){width:16%}
+  #page-dashboard .table-wrap th:nth-child(3),#page-dashboard .table-wrap td:nth-child(3){width:13%}
+  #page-dashboard .table-wrap th:nth-child(4),#page-dashboard .table-wrap td:nth-child(4){width:14%}
+  #page-dashboard .table-wrap th:nth-child(5),#page-dashboard .table-wrap td:nth-child(5){width:14%}
+  #page-dashboard .table-wrap th:nth-child(6),#page-dashboard .table-wrap td:nth-child(6){width:13%}
+  #page-dashboard .table-wrap th:nth-child(7),#page-dashboard .table-wrap td:nth-child(7){width:14%}
+  #page-dashboard td{overflow-wrap:anywhere}
+  #page-dashboard td:last-child{white-space:normal}
+  #page-dashboard td:last-child .btn{padding:6px 8px;font-size:11px;margin:2px 1px}
+}
+
+@media(max-width:1050px){
+  .sidebar{width:220px;padding-left:14px;padding-right:14px}
+  main{margin-left:220px}
+  .topbar{padding-left:20px;padding-right:20px}
+  .form-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toolbar{align-items:flex-start}
+  .toolbar .spacer{min-width:10px}
+  .panel{padding:18px}
+}
+
+@media(max-width:820px){
+  .grid.cards{grid-template-columns:1fr}
+  .form-grid.three{grid-template-columns:1fr}
+  #page-dashboard .table-wrap table{min-width:650px}
+}
+
+/* v1.7.0 — cegah label dan nominal Sisa Pembayaran bertumpuk */
+.preview .summary-row.balance{
+  grid-template-columns:1fr!important;
+  grid-template-rows:auto auto!important;
+  row-gap:7px!important;
+  column-gap:0!important;
+  align-items:start!important;
+}
+.preview .summary-row.balance span:first-child{
+  width:100%!important;
+  font-size:22px!important;
+  line-height:1.05!important;
+  white-space:normal!important;
+}
+.preview .summary-row.balance span:last-child{
+  width:100%!important;
+  font-size:clamp(22px,2.2vw,28px)!important;
+  line-height:1.05!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+@media(max-width:1180px){
+  .preview .summary-row.balance span:first-child{font-size:21px!important}
+  .preview .summary-row.balance span:last-child{font-size:23px!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    grid-template-columns:1fr auto!important;
+    grid-template-rows:auto!important;
+    column-gap:12px!important;
+    align-items:center!important;
+  }
+  .preview .summary-row.balance span:last-child{width:auto!important;overflow:visible!important}
+}
+
+/* v1.7.0 — layout final Sisa Pembayaran: label di atas, nominal besar di bawah */
+.preview .summary-row.balance{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:stretch!important;
+  justify-content:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:16px 18px!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance span:first-child{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(18px,2vw,24px)!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:break-word!important;
+}
+.preview .summary-row.balance span:last-child{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(28px,3.1vw,44px)!important;
+  line-height:1!important;
+  font-weight:950!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.045em!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+@media(max-width:1180px){
+  .preview .summary-row.balance{padding:15px 16px!important;gap:8px!important}
+  .preview .summary-row.balance span:first-child{font-size:20px!important}
+  .preview .summary-row.balance span:last-child{font-size:clamp(26px,4vw,36px)!important}
+}
+@media(max-width:720px){
+  .preview .summary-row.balance span:last-child{font-size:clamp(24px,8vw,34px)!important}
+}
+@media print{
+  .preview .summary-row.balance{
+    display:flex!important;
+    flex-direction:column!important;
+    align-items:stretch!important;
+    gap:7px!important;
+    overflow:visible!important;
+  }
+  .preview .summary-row.balance span:first-child{text-align:left!important}
+  .preview .summary-row.balance span:last-child{
+    width:100%!important;
+    font-size:30px!important;
+    text-align:right!important;
+    overflow:visible!important;
+  }
+}
+
+/* =========================================================
+   SHIROGANE FINAL v1.7.0 — responsive stability overrides
+   ========================================================= */
+html,body,#app{max-width:100%;min-width:0;overflow-x:hidden}
+main,.page,.panel,.card,.split,.sticky,.preview,.table-wrap,.form-grid,.field{min-width:0;max-width:100%}
+
+/* Summary cards never push outside the viewport. */
+.grid.cards{grid-template-columns:repeat(4,minmax(0,1fr))}
+.card .value{
+  width:100%;
+  max-width:100%;
+  font-size:clamp(19px,2.15vw,30px)!important;
+  line-height:1.12!important;
+  letter-spacing:-.025em;
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+
+/* Tables stay usable without forcing the whole app wider. */
+.table-wrap{width:100%;overflow-x:auto;overscroll-behavior-inline:contain}
+table{max-width:100%}
+.actions-cell{min-width:150px;display:flex;flex-wrap:wrap;gap:6px}
+.actions-cell .btn{flex:0 0 auto}
+
+/* Order form and receipt preview gracefully stack on narrow windows. */
+.split{grid-template-columns:minmax(0,1.65fr) minmax(320px,.75fr)}
+.form-grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+.field input,.field select,.field textarea{width:100%;min-width:0;max-width:100%}
+
+/* Final debt box: two real rows, never overlaying each other. */
+.preview .summary-row.balance{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:auto auto!important;
+  align-items:stretch!important;
+  justify-items:stretch!important;
+  gap:8px!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  padding:15px 16px!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance>span:first-child{
+  grid-row:1!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  margin:0!important;
+  font-size:clamp(18px,1.8vw,24px)!important;
+  line-height:1.08!important;
+  font-weight:900!important;
+  text-align:left!important;
+  white-space:normal!important;
+  overflow-wrap:normal!important;
+}
+.preview .summary-row.balance>span:last-child{
+  grid-row:2!important;
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  margin:0!important;
+  font-size:clamp(25px,3vw,40px)!important;
+  line-height:1.05!important;
+  font-weight:950!important;
+  text-align:right!important;
+  white-space:nowrap!important;
+  letter-spacing:-.04em!important;
+  overflow:hidden!important;
+  text-overflow:clip!important;
+}
+
+/* Hide the temporary red build marker in the final release. */
+#activeBuildBadge{display:none!important}
+
+@media(max-width:1280px){
+  .grid.cards{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .split{grid-template-columns:minmax(0,1fr)!important}
+  .sticky{position:static!important}
+  .form-grid.three{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .preview .summary-row.balance>span:last-child{font-size:clamp(25px,4vw,36px)!important}
+}
+@media(max-width:900px){
+  .grid.cards,.form-grid.three{grid-template-columns:1fr!important}
+  .page{padding:16px!important}
+  .panel{padding:16px!important}
+  .topbar{gap:10px}
+  .topbar h1{font-size:24px}
+}
+@media print{
+  html,body,#app{overflow:visible!important}
+  .preview .summary-row.balance{
+    overflow:visible!important;
+    padding:14px 16px!important;
+  }
+  .preview .summary-row.balance>span:last-child{
+    font-size:30px!important;
+    overflow:visible!important;
+  }
+}
+
+/* =========================================================
+   SHIROGANE v1.7.1 — receipt narrow-panel text fitting
+   Fixes clipped balance and bank account numbers in Electron.
+   ========================================================= */
+.preview{container-type:inline-size}
+
+.preview .summary-row.balance>span:last-child{
+  font-size:clamp(23px,12cqw,34px)!important;
+  letter-spacing:-.045em!important;
+}
+
+.preview .payment-bank{
+  display:grid!important;
+  grid-template-columns:minmax(72px,96px) minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  width:100%!important;
+  min-width:0!important;
+  padding:11px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank .bank-logo-img,
+.preview .payment-bank .bank-logo-img.large{
+  width:100%!important;
+  max-width:96px!important;
+  height:42px!important;
+  object-fit:contain!important;
+}
+.preview .payment-bank .bank-logo-fallback,
+.preview .payment-bank .bank-logo-fallback.large{
+  min-width:0!important;
+  width:100%!important;
+  max-width:96px!important;
+  height:42px!important;
+  padding:0 6px!important;
+  font-size:14px!important;
+}
+.preview .payment-bank>div{
+  min-width:0!important;
+  max-width:100%!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank strong{
+  display:block!important;
+  width:100%!important;
+  min-width:0!important;
+  max-width:100%!important;
+  font-size:clamp(10px,5.2cqw,15px)!important;
+  line-height:1.15!important;
+  letter-spacing:.01em!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+.preview .payment-bank small,
+.preview .payment-bank span{
+  display:block!important;
+  min-width:0!important;
+  max-width:100%!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+
+@container (max-width:300px){
+  .preview .summary-row.balance>span:last-child{font-size:clamp(22px,11.5cqw,31px)!important}
+  .preview .payment-bank{grid-template-columns:78px minmax(0,1fr)!important;gap:8px!important;padding:9px!important}
+  .preview .payment-bank strong{font-size:clamp(9.5px,4.9cqw,13px)!important}
+}
+
+@media print{
+  .preview .summary-row.balance>span:last-child{font-size:30px!important}
+  .preview .payment-bank strong{font-size:14px!important}
+}
+
+
+/* v1.7.2 — ukuran teks ditentukan JavaScript berdasarkan lebar kotak sebenarnya */
+.preview .summary-row.balance > span:last-child,
+.preview .payment-bank strong {
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+}
+.preview .payment-bank{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:auto minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:10px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank > div{min-width:0!important;max-width:100%!important;overflow:hidden!important}
+.preview .payment-bank strong{display:block!important;width:100%!important;letter-spacing:.02em!important}
+@media(max-width:1100px){
+  .preview .bank-logo-img{width:96px!important;height:34px!important}
+  .preview .payment-bank{padding:10px!important;gap:8px!important}
+}
+
+
+/* v1.7.3 unmistakable build marker */
+.version-proof{position:fixed;top:8px;right:150px;z-index:9999;background:#b91c1c;color:#fff;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.04em;box-shadow:0 4px 16px rgba(0,0,0,.22)}
+.preview .summary-row.balance{display:grid!important;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;align-items:center!important;gap:8px!important}
+.preview .summary-row.balance>span{min-width:0!important}
+.preview .summary-row.balance>span:last-child{display:block!important;width:100%!important;text-align:right!important}
+.preview .payment-bank{grid-template-columns:minmax(64px,92px) minmax(0,1fr)!important}
+@media(max-width:1000px){.version-proof{right:72px}.preview .summary-row.balance{grid-template-columns:1fr!important}.preview .summary-row.balance>span:last-child{text-align:left!important}}
+
+
+/* =========================================================
+   SHIROGANE FINAL — clean debt box, no temporary badge
+   ========================================================= */
+.version-proof{display:none!important}
+
+.preview .summary-row.balance{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:8px!important;
+  min-height:118px!important;
+  padding:14px 12px!important;
+  text-align:center!important;
+  overflow:hidden!important;
+}
+.preview .summary-row.balance>span:first-child{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  font-size:16px!important;
+  line-height:1.15!important;
+  font-weight:800!important;
+  letter-spacing:.01em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+}
+.preview .summary-row.balance>span:last-child{
+  display:block!important;
+  width:100%!important;
+  margin:0!important;
+  font-size:34px!important;
+  line-height:1!important;
+  font-weight:950!important;
+  letter-spacing:-.035em!important;
+  text-align:center!important;
+  white-space:nowrap!important;
+  overflow:visible!important;
+  transform-origin:center center!important;
+}
+@container (max-width:300px){
+  .preview .summary-row.balance{min-height:112px!important;padding:13px 10px!important}
+  .preview .summary-row.balance>span:first-child{font-size:15px!important}
+  .preview .summary-row.balance>span:last-child{font-size:31px!important}
+}
+@media print{
+  .preview .summary-row.balance>span:first-child{font-size:15px!important}
+  .preview .summary-row.balance>span:last-child{font-size:30px!important}
+}
+
+/* =========================================================
+   SHIROGANE ANDROID v1.7.8 — MOBILE LAYOUT FINAL OVERRIDES
+   Diletakkan paling akhir agar tidak ditimpa aturan desktop/tablet.
+   ========================================================= */
+@media (max-width: 720px) {
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  #app { width:100%; min-height:100vh; overflow-x:hidden; }
+
+  .sidebar {
+    position:fixed!important;
+    inset:0 auto 0 0!important;
+    width:min(86vw,290px)!important;
+    max-width:290px!important;
+    padding:18px 14px!important;
+    transform:translateX(-105%)!important;
+    transition:transform .22s ease!important;
+    box-shadow:12px 0 32px rgba(15,23,42,.25)!important;
+    z-index:10001!important;
+  }
+  .sidebar.open { transform:translateX(0)!important; }
+
+  main {
+    display:block!important;
+    width:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    padding:0!important;
+    overflow-x:hidden!important;
+  }
+
+  .topbar {
+    width:100%!important;
+    min-height:72px!important;
+    height:auto!important;
+    padding:10px 14px!important;
+    gap:12px!important;
+    align-items:center!important;
+  }
+  .topbar > div { min-width:0!important; flex:1!important; }
+  .topbar h1 { font-size:24px!important; line-height:1.05!important; }
+  .topbar p { font-size:12px!important; line-height:1.25!important; white-space:normal!important; }
+  .icon-btn {
+    display:grid!important;
+    place-items:center!important;
+    flex:0 0 44px!important;
+    width:44px!important;
+    height:44px!important;
+    border-radius:12px!important;
+    background:#f1f5f9!important;
+    font-size:25px!important;
+    cursor:pointer!important;
+  }
+  .topbar .btn { display:none!important; }
+
+  .page {
+    width:100%!important;
+    max-width:100%!important;
+    padding:14px!important;
+    overflow-x:hidden!important;
+  }
+  .grid.cards,
+  .form-grid,
+  .form-grid.three,
+  .split { grid-template-columns:minmax(0,1fr)!important; }
+  .grid.cards { gap:12px!important; }
+  .card { width:100%!important; padding:17px!important; border-radius:18px!important; }
+  .card .value { font-size:26px!important; overflow-wrap:normal!important; word-break:normal!important; }
+  .panel { width:100%!important; padding:15px!important; margin-top:14px!important; border-radius:18px!important; }
+  .panel h2 { font-size:20px!important; }
+
+  .toolbar { width:100%!important; align-items:stretch!important; }
+  .toolbar .spacer { display:none!important; }
+  .toolbar .btn { width:100%!important; min-height:48px!important; }
+
+  .field input,.field select,.field textarea {
+    min-height:48px!important;
+    font-size:16px!important;
+  }
+  .sizes { grid-template-columns:repeat(3,minmax(0,1fr))!important; }
+  .item-head { flex-wrap:wrap!important; }
+  .item-calc { width:100%!important; margin:0!important; }
+
+  .table-wrap { width:100%!important; max-width:100%!important; overflow-x:auto!important; -webkit-overflow-scrolling:touch; }
+  #page-dashboard .table-wrap table { min-width:650px!important; }
+
+  .sticky { position:static!important; top:auto!important; }
+  .preview { width:100%!important; max-width:100%!important; padding:13px!important; overflow:hidden!important; }
+  .preview .receipt-meta { grid-template-columns:1fr!important; }
+  .preview .summary-row { gap:10px!important; }
+  .preview .payment-bank { grid-template-columns:74px minmax(0,1fr)!important; }
+  .preview .bank-logo-img { width:72px!important; height:30px!important; }
+  .preview .payment-bank strong { font-size:clamp(11px,3.25vw,14px)!important; letter-spacing:0!important; overflow-wrap:anywhere!important; }
+
+  .thumbs { grid-template-columns:repeat(2,minmax(0,1fr))!important; }
+  .toast { left:14px!important; right:14px!important; bottom:76px!important; text-align:center!important; }
+
+  /* Tombol cloud tidak menutupi tombol/form di bawah. */
+  .sg-cloud-fab {
+    right:12px!important;
+    bottom:12px!important;
+    max-width:calc(100vw - 24px)!important;
+    padding:10px 13px!important;
+    font-size:12px!important;
+    white-space:nowrap!important;
+    z-index:9998!important;
+  }
+
+  .sg-cloud-modal { padding:12px!important; }
+  .sg-cloud-card { padding:18px!important; border-radius:17px!important; }
+}
+
+@media (max-width: 390px) {
+  .page { padding:11px!important; }
+  .topbar { padding-left:10px!important; padding-right:10px!important; }
+  .topbar h1 { font-size:22px!important; }
+  .card .value { font-size:23px!important; }
+  .sizes { grid-template-columns:repeat(3,minmax(0,1fr))!important; gap:6px!important; }
+}
+
+
+/* SHIROGANE v2.3.0 — Mobile order cards */
+.mobile-order-list{display:none}
+@media (max-width:820px){
+  .desktop-orders{display:none!important}
+  .mobile-order-list{display:grid;gap:14px;margin-top:14px}
+  .mobile-order-card{background:#fff;border:1px solid #e2e8f0;border-radius:22px;padding:17px;box-shadow:0 12px 30px rgba(15,23,42,.08);overflow:hidden}
+  .mobile-order-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+  .mobile-order-kicker{display:block;color:#64748b;font-size:11px;font-weight:800;letter-spacing:.08em;margin-bottom:4px}
+  .mobile-order-invoice{display:block;font-size:17px;line-height:1.25;color:#0f172a;overflow-wrap:anywhere}
+  .mobile-order-customer{font-size:21px;font-weight:900;color:#0f172a;margin:16px 0 14px}
+  .mobile-order-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;background:#f8fafc;border-radius:16px;padding:12px}
+  .mobile-order-info div{min-width:0}
+  .mobile-order-info span{display:block;color:#64748b;font-size:11px;margin-bottom:4px}
+  .mobile-order-info b{display:block;color:#0f172a;font-size:13px;overflow-wrap:anywhere}
+  .mobile-order-info .balance b{color:#b91c1c}
+  .mobile-order-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:14px}
+  .mobile-order-actions button{border:1px solid #dbe3ee;background:#fff;color:#0f172a;border-radius:13px;min-height:46px;padding:10px 8px;font-weight:850;font-size:14px;touch-action:manipulation}
+  .mobile-order-actions button.open{background:#0f172a;border-color:#0f172a;color:#fff}
+  .mobile-order-actions button.print{background:#e8f0ff;border-color:#bfd2ff;color:#153b82}
+  .mobile-order-actions button.danger{grid-column:1/-1;background:#fff1f2;border-color:#fecdd3;color:#be123c}
+  #page-dashboard .panel>.toolbar{align-items:stretch}
+  #page-dashboard .panel>.toolbar h2{margin-bottom:4px}
+  #page-orders .toolbar{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+  #page-orders .toolbar #orderSearch{grid-column:1/-1;min-width:0!important;width:100%}
+  #page-orders .toolbar .spacer{display:none}
+  #page-orders .toolbar #bulkDeleteBtn{display:none}
+  #page-orders .toolbar .btn.primary{width:100%}
+  .mobile-print-toolbar{padding:10px;gap:7px;flex-wrap:wrap}
+  .mobile-print-toolbar button{min-height:44px;font-size:13px}
+}
+@media (max-width:380px){
+  .mobile-order-info{grid-template-columns:1fr 1fr}
+  .mobile-order-info .balance{grid-column:1/-1}
+}
+
+.image-placeholder{min-height:90px;display:flex;align-items:center;justify-content:center;padding:12px;border:1px dashed #cbd5e1;border-radius:10px;background:#f8fafc;color:#64748b;font-size:12px;text-align:center}.thumb.image-missing{background:#f8fafc}
+
+/* ===== v2.3.3 — Premium opening splash ===== */
+body.app-loading{overflow:hidden}
+.app-splash{position:fixed;inset:0;z-index:100000;display:grid;place-items:center;overflow:hidden;background:linear-gradient(145deg,#070b14 0%,#111827 48%,#172554 100%);color:#fff;opacity:1;visibility:visible;transition:opacity .55s ease,visibility .55s ease}
+.app-splash.is-hiding{opacity:0;visibility:hidden;pointer-events:none}
+.splash-content{position:relative;z-index:2;text-align:center;animation:splashRise .7s cubic-bezier(.2,.8,.2,1) both}
+.splash-logo-ring{width:104px;height:104px;margin:0 auto 20px;padding:3px;border-radius:32px;background:linear-gradient(135deg,#f8d47a,#b7892f,#fff0b0);box-shadow:0 18px 55px rgba(234,179,8,.22);animation:splashFloat 2.6s ease-in-out infinite}
+.splash-logo{height:100%;display:grid;place-items:center;border-radius:29px;background:#111827;font-size:52px;font-weight:950;letter-spacing:-4px;color:#f5c451;text-shadow:0 3px 18px rgba(245,196,81,.3)}
+.app-splash h1{margin:0;font-size:28px;letter-spacing:8px;font-weight:900}.app-splash p{margin:7px 0 25px;color:#cbd5e1;letter-spacing:3px;font-size:12px;text-transform:uppercase}
+.splash-loader{width:190px;height:4px;margin:auto;overflow:hidden;border-radius:99px;background:rgba(255,255,255,.12)}.splash-loader span{display:block;width:42%;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b7892f,#f8d47a,#fff2b2);animation:splashLoad 1.25s ease-in-out infinite}
+.app-splash small{display:block;margin-top:12px;color:#94a3b8;font-size:11px;letter-spacing:.5px}
+.splash-glow{position:absolute;border-radius:999px;filter:blur(18px);opacity:.28}.splash-glow-one{width:280px;height:280px;left:-90px;top:-90px;background:#2563eb;animation:glowDrift 6s ease-in-out infinite alternate}.splash-glow-two{width:330px;height:330px;right:-120px;bottom:-130px;background:#d4a72c;animation:glowDrift 7s ease-in-out infinite alternate-reverse}
+@keyframes splashRise{from{opacity:0;transform:translateY(18px) scale(.96)}to{opacity:1;transform:none}}@keyframes splashFloat{50%{transform:translateY(-7px)}}@keyframes splashLoad{0%{transform:translateX(-110%)}100%{transform:translateX(350%)}}@keyframes glowDrift{to{transform:translate(35px,25px) scale(1.12)}}
+@media (prefers-reduced-motion:reduce){.splash-content,.splash-logo-ring,.splash-loader span,.splash-glow{animation:none!important}.app-splash{transition:none}}
+
+
+/* ===== v2.3.4 — Exit confirmation ===== */
+.exit-confirm{position:fixed;inset:0;z-index:100300;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(2,6,23,.66);backdrop-filter:blur(7px);opacity:0;visibility:hidden;pointer-events:none;transition:opacity .22s ease,visibility .22s ease}
+.exit-confirm.show{opacity:1;visibility:visible;pointer-events:auto}
+.exit-confirm-card{width:min(390px,100%);padding:26px 22px 22px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 30px 90px rgba(2,6,23,.42);transform:translateY(14px) scale(.96);transition:transform .24s cubic-bezier(.2,.8,.2,1)}
+.exit-confirm.show .exit-confirm-card{transform:none}
+.exit-confirm-icon{width:64px;height:64px;margin:0 auto 15px;display:grid;place-items:center;border-radius:20px;background:linear-gradient(145deg,#111827,#1e293b);color:#f5c451;font-size:31px;font-weight:950;box-shadow:0 12px 28px rgba(15,23,42,.25)}
+.exit-confirm-card h2{margin:0 0 7px;color:#0f172a;font-size:22px}.exit-confirm-card p{margin:0;color:#475569;font-size:15px}.exit-confirm-card small{display:block;margin-top:7px;color:#94a3b8}
+.exit-confirm-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.exit-confirm-actions button{min-height:47px;border-radius:13px;font-weight:850;font-size:14px;cursor:pointer}.exit-confirm-actions .stay{border:1px solid #cbd5e1;background:#f8fafc;color:#0f172a}.exit-confirm-actions .leave{border:1px solid #dc2626;background:#dc2626;color:#fff}
+body.exit-confirm-open{overflow:hidden}
+@media(max-width:420px){.exit-confirm-actions{grid-template-columns:1fr}.exit-confirm-actions .stay{order:1}.exit-confirm-actions .leave{order:2}}
+
+/* ===== SHIROGANE v3.0.0 — stability UI ===== */
+.sg-system-modal{position:fixed;inset:0;z-index:200000;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(8,15,29,.72);backdrop-filter:blur(12px)}
+.sg-system-modal.show{display:flex;animation:sgFadeIn .18s ease-out}
+.sg-system-card{width:min(420px,100%);padding:28px;border:1px solid rgba(255,255,255,.12);border-radius:26px;background:linear-gradient(145deg,#fff,#f5f7fb);box-shadow:0 30px 90px rgba(2,6,23,.42);text-align:center;animation:sgCardIn .28s cubic-bezier(.2,.8,.2,1)}
+.sg-system-icon{width:62px;height:62px;margin:0 auto 16px;display:grid;place-items:center;border-radius:20px;background:#111827;color:#fff;font-size:30px;font-weight:900;box-shadow:0 12px 28px rgba(17,24,39,.25)}
+.sg-system-card h2{margin:0 0 8px;font-size:23px}.sg-system-card p{margin:0;color:#64748b;line-height:1.55}.sg-system-card small{display:inline-block;margin-top:7px}
+.sg-system-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:22px}.sg-system-actions button{border:0;border-radius:13px;padding:12px 15px;font-weight:800;cursor:pointer}.sg-system-actions .secondary{background:#e2e8f0;color:#111827}.sg-system-actions .primary{background:#111827;color:#fff}
+.sg-stability-panel{border:1px solid #dbe4f0;background:linear-gradient(135deg,#fff 0%,#f7f9fc 100%)}
+.sg-stability-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.sg-stability-head h2{margin-bottom:5px}.sg-stability-head p{margin:0;color:#64748b}.sg-version-badge{padding:6px 10px;border-radius:999px;background:#111827;color:#fff;font-size:12px;font-weight:800;white-space:nowrap}.sg-backup-status{margin:16px 0;padding:11px 13px;border:1px solid #dbe4f0;border-radius:12px;background:#fff;color:#475569;font-size:13px}.sg-stability-actions{display:flex;flex-wrap:wrap;gap:9px}
+@keyframes sgFadeIn{from{opacity:0}to{opacity:1}}@keyframes sgCardIn{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+@media(max-width:640px){.sg-system-actions{grid-template-columns:1fr}.sg-stability-actions{display:grid;grid-template-columns:1fr}.sg-stability-actions .btn{width:100%}.sg-stability-head{align-items:center}.sg-stability-head p{font-size:13px}}
+
+.splash-logo-img{width:100%;height:100%;display:block;object-fit:cover;border-radius:29px;background:#111827;}
+
+
+/* v3.0.19 — BANK RECEIPT LAYOUT FIX
+   One logo column + one account column. No duplicate/fallback box. */
+.bank-logo-slot{
+  width:132px;height:48px;min-width:132px;
+  display:flex;align-items:center;justify-content:flex-start;
+  overflow:hidden;background:transparent;border:0;padding:0;
+}
+.bank-logo-slot.large{width:150px;height:54px;min-width:150px}
+.bank-logo-slot .bank-logo-img,
+.bank-logo-slot .bank-logo-img.large{
+  display:block!important;width:100%!important;height:100%!important;
+  max-width:100%!important;object-fit:contain!important;object-position:left center!important;
+  padding:0!important;margin:0!important;border:0!important;background:transparent!important;
+}
+.bank-logo-slot.logo-error::after{content:attr(data-bank);font-weight:900;font-size:18px;color:#334155}
+.bank-logo-slot.bank-logo-text{font-weight:900;font-size:18px;color:#334155}
+.preview .payment-bank{
+  display:grid!important;grid-template-columns:112px minmax(0,1fr)!important;
+  align-items:center!important;column-gap:16px!important;
+  width:100%!important;min-width:0!important;padding:14px 16px!important;
+  overflow:hidden!important;
+}
+.preview .payment-bank>.bank-logo-slot,
+.preview .payment-bank>.bank-logo-slot.large{
+  width:112px!important;min-width:112px!important;height:50px!important;
+}
+.preview .payment-bank>div:last-child{
+  display:flex!important;flex-direction:column!important;justify-content:center!important;
+  gap:2px!important;min-width:0!important;overflow:visible!important;
+}
+.preview .payment-bank small{font-size:11px!important;line-height:1.2!important;color:var(--muted)!important}
+.preview .payment-bank strong{
+  display:block!important;width:auto!important;max-width:100%!important;
+  font-size:15px!important;line-height:1.2!important;letter-spacing:.02em!important;
+  white-space:nowrap!important;overflow:visible!important;overflow-wrap:normal!important;
+}
+.preview .payment-bank span{font-size:11px!important;line-height:1.2!important;color:var(--muted)!important}
+@media(max-width:720px){
+  .preview .payment-bank{grid-template-columns:104px minmax(0,1fr)!important;column-gap:12px!important;padding:12px!important}
+  .preview .payment-bank>.bank-logo-slot,.preview .payment-bank>.bank-logo-slot.large{width:104px!important;min-width:104px!important;height:46px!important}
+  .preview .payment-bank strong{font-size:14px!important}
+}
+@media print{
+  .bank-logo-slot,.bank-logo-slot .bank-logo-img{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+}
+\n\n/* v3.0.20 — BANK LOGO PDF SAFE FIX\n   All built-in logos are tight-cropped PNGs. Keep a safe inset so html2canvas\n   never clips edge pixels when the receipt is rasterized to PDF. */\n.bank-logo-slot, .bank-logo-slot.large{\n  box-sizing:border-box!important;\n  overflow:visible!important;\n  padding:4px 6px!important;\n}\n.bank-logo-slot .bank-logo-img,\n.bank-logo-slot .bank-logo-img.large{\n  width:100%!important;\n  height:100%!important;\n  max-width:100%!important;\n  max-height:100%!important;\n  object-fit:contain!important;\n  object-position:center center!important;\n  box-sizing:border-box!important;\n  padding:0!important;\n  margin:0!important;\n  transform:none!important;\n}\n.preview .payment-bank>.bank-logo-slot,\n.preview .payment-bank>.bank-logo-slot.large{\n  overflow:visible!important;\n}\n.pdf-exact-clone .bank-logo-slot{\n  overflow:visible!important;\n  padding:5px 7px!important;\n}\n.pdf-exact-clone .bank-logo-img{\n  object-fit:contain!important;\n  object-position:center center!important;\n}\n

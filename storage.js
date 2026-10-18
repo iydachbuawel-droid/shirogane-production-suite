@@ -1,0 +1,140 @@
+/* SHIROGANE Large Storage v2.2.0 — IndexedDB + safe local fallback */
+(() => {
+  const DB_NAME = 'shirogane-large-storage';
+  const STORE = 'state';
+  const KEY = 'shirogane-db';
+
+  function openDB() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains(STORE)) db.createObjectStore(STORE);
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('IndexedDB tidak dapat dibuka'));
+    });
+  }
+
+  async function put(value) {
+    const idb = await openDB();
+    await new Promise((resolve, reject) => {
+      const tx = idb.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(value, KEY);
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error || new Error('Gagal menyimpan ke IndexedDB'));
+      tx.onabort = () => reject(tx.error || new Error('Penyimpanan dibatalkan'));
+    });
+    idb.close();
+  }
+
+  async function get() {
+    const idb = await openDB();
+    const value = await new Promise((resolve, reject) => {
+      const tx = idb.transaction(STORE, 'readonly');
+      const req = tx.objectStore(STORE).get(KEY);
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => reject(req.error || new Error('Gagal membaca IndexedDB'));
+    });
+    idb.close();
+    return value;
+  }
+
+  function lightweight(value) {
+    const copy = structuredClone(value || {});
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (copy[collectionName] || [])) {
+        if (Array.isArray(order.images)) {
+          order.images = order.images.map(im => ({
+            id: im.id,
+            name: im.name,
+            url: im.url || '',
+            path: im.path || '',
+            width: im.width || 0,
+            height: im.height || 0,
+            optimizedBytes: im.optimizedBytes || 0,
+            storedInIndexedDB: true
+          }));
+        }
+      }
+    }
+    if (copy.settings?.logo?.startsWith?.('data:')) copy.settings.logo = '';
+    if (copy.settings?.customBankLogos) copy.settings.customBankLogos = {};
+    return copy;
+  }
+
+  async function saveDB(value) {
+    await put(value);
+    try {
+      localStorage.setItem(KEY, JSON.stringify(lightweight(value)));
+    } catch (err) {
+      console.warn('LocalStorage penuh; data lengkap tetap aman di IndexedDB.', err);
+      try { localStorage.removeItem(KEY); } catch {}
+    }
+    return true;
+  }
+
+  async function loadDB() {
+    try {
+      const large = await get();
+      if (large && typeof large === 'object') return large;
+    } catch (err) {
+      console.warn('IndexedDB belum tersedia, memakai data lokal lama.', err);
+    }
+    try {
+      return JSON.parse(localStorage.getItem(KEY) || 'null');
+    } catch {
+      return null;
+    }
+  }
+
+  async function migrateLegacy(value) {
+    if (!value || typeof value !== 'object') return;
+    try {
+      const existing = await get();
+      if (!existing) await saveDB(value);
+    } catch (err) {
+      console.warn('Migrasi penyimpanan lama gagal:', err);
+    }
+  }
+
+  function validImageData(value) {
+    return typeof value === 'string' && (/^data:image\//i.test(value) || /^blob:/i.test(value) || /^https?:\/\//i.test(value));
+  }
+
+  function mergeMissingImages(current, incoming) {
+    const result = structuredClone(incoming || {});
+    result.settings = result.settings || {};
+    const currentLogo = current?.settings?.logo || '';
+    const currentLogoPath = current?.settings?.logoCloudPath || '';
+    const currentLogoUrl = current?.settings?.logoCloudUrl || '';
+    if (!validImageData(result.settings.logo) && validImageData(currentLogo)) result.settings.logo = currentLogo;
+    if (!result.settings.logoCloudPath && currentLogoPath) result.settings.logoCloudPath = currentLogoPath;
+    if (!result.settings.logoCloudUrl && currentLogoUrl) result.settings.logoCloudUrl = currentLogoUrl;
+    const currentById = new Map();
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of ((current && current[collectionName]) || [])) {
+        for (const image of (order.images || [])) {
+          if (image?.id && validImageData(image.data)) currentById.set(image.id, image.data);
+        }
+      }
+    }
+    for (const collectionName of ['orders', 'trash']) {
+      for (const order of (result[collectionName] || [])) {
+        order.images = (order.images || []).map(image => {
+          const copy = { ...image };
+          if (!validImageData(copy.data) && copy.id && currentById.has(copy.id)) {
+            copy.data = currentById.get(copy.id);
+            delete copy.storedInIndexedDB;
+          } else if (!validImageData(copy.data) && validImageData(copy.url)) {
+            copy.data = copy.url;
+          }
+          return copy;
+        });
+      }
+    }
+    return result;
+  }
+
+  window.ShiroganeStorage = { saveDB, loadDB, migrateLegacy, lightweight, mergeMissingImages, validImageData };
+})();
