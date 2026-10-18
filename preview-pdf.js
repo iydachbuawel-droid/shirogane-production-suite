@@ -70,20 +70,41 @@
       .pdf-exact-clone .preview table {
         width:100%!important; min-width:0!important; max-width:100%!important;
         table-layout:fixed!important; border-collapse:collapse!important;
+        border:1px solid #64748b!important;
       }
       .pdf-exact-clone th,
       .pdf-exact-clone td {
         box-sizing:border-box!important;
         min-width:0!important; max-width:none!important;
-        padding:2px 1px!important;
-        font-size:7px!important; line-height:1.15!important;
-        white-space:normal!important;
-        overflow-wrap:anywhere!important; word-break:break-word!important;
+        padding:3px 1px!important;
+        font-size:6px!important; line-height:1.2!important;
+        text-align:center!important;
+        vertical-align:middle!important;
+        border:1px solid #94a3b8!important;
+        white-space:nowrap!important;
+        overflow:hidden!important;
+        text-overflow:clip!important;
+        overflow-wrap:normal!important;
+        word-break:normal!important;
       }
-      .pdf-exact-clone th:first-child,
-      .pdf-exact-clone td:first-child {
-        width:18%!important; text-align:left!important;
+      /* 13 kolom: Barang, 9 ukuran, Qty, Harga, Jumlah */
+      .pdf-exact-clone th:nth-child(1),
+      .pdf-exact-clone td:nth-child(1) {
+        width:22%!important; text-align:left!important;
+        white-space:normal!important; overflow-wrap:anywhere!important;
+        padding-left:3px!important; padding-right:2px!important;
       }
+      .pdf-exact-clone th:nth-child(n+2):nth-child(-n+10),
+      .pdf-exact-clone td:nth-child(n+2):nth-child(-n+10) {
+        width:4.5%!important; padding-left:0!important; padding-right:0!important;
+      }
+      .pdf-exact-clone th:nth-child(11),
+      .pdf-exact-clone td:nth-child(11) { width:6%!important; }
+      .pdf-exact-clone th:nth-child(12),
+      .pdf-exact-clone td:nth-child(12) { width:14.5%!important; font-size:5.5px!important; }
+      .pdf-exact-clone th:nth-child(13),
+      .pdf-exact-clone td:nth-child(13) { width:17%!important; font-size:5.5px!important; }
+      .pdf-exact-clone th { background:#f1f5f9!important; font-weight:700!important; }
     `;
     clone.prepend(pdfStyle);
     clone.style.setProperty('width',width+'px','important');
